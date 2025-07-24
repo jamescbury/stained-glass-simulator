@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/stained-glass-simulator/static/css/main.051d8882.css",
-    "main.js": "/stained-glass-simulator/static/js/main.4e0a9731.js",
+    "main.css": "/stained-glass-simulator/static/css/main.57171e7e.css",
+    "main.js": "/stained-glass-simulator/static/js/main.5a434968.js",
     "index.html": "/stained-glass-simulator/index.html",
-    "main.051d8882.css.map": "/stained-glass-simulator/static/css/main.051d8882.css.map",
-    "main.4e0a9731.js.map": "/stained-glass-simulator/static/js/main.4e0a9731.js.map"
+    "main.57171e7e.css.map": "/stained-glass-simulator/static/css/main.57171e7e.css.map",
+    "main.5a434968.js.map": "/stained-glass-simulator/static/js/main.5a434968.js.map"
   },
   "entrypoints": [
-    "static/css/main.051d8882.css",
-    "static/js/main.4e0a9731.js"
+    "static/css/main.57171e7e.css",
+    "static/js/main.5a434968.js"
   ]
 }
