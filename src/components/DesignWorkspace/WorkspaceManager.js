@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { patternStorage } from '../../services/patternStorage';
 import { glassStorage } from '../../services/glassStorage';
 import DesignCanvas from './DesignCanvas';
-import GlassInventoryPanel from './GlassInventoryPanel';
-import ProjectPanel from './ProjectPanel';
+import SidePanel from './SidePanel';
 import './DesignWorkspace.css';
 
 const WorkspaceManager = () => {
@@ -12,10 +11,11 @@ const WorkspaceManager = () => {
   const [glassInventory, setGlassInventory] = useState([]);
   const [projectName, setProjectName] = useState('Untitled Project');
   const [isLoading, setIsLoading] = useState(true);
-  const [showInventory, setShowInventory] = useState(true);
+  const [showSidePanel, setShowSidePanel] = useState(true);
   const [appliedGlass, setAppliedGlass] = useState({}); // shapeIndex -> glass application data
   const [selectedShapeIndex, setSelectedShapeIndex] = useState(null);
   const [placementMode, setPlacementMode] = useState(null); // null or { glassId, glassData }
+  const [pieces, setPieces] = useState([]);
 
   useEffect(() => {
     loadData();
@@ -46,10 +46,11 @@ const WorkspaceManager = () => {
   const handleTemplateChange = (templateId) => {
     const template = templates.find(t => t.id === parseInt(templateId));
     setSelectedTemplate(template);
-    // Reset applied glass when changing templates
+    // Reset state when changing templates
     setAppliedGlass({});
     setSelectedShapeIndex(null);
     setPlacementMode(null);
+    setPieces([]);
   };
 
   const handleGlassSelect = (glass) => {
@@ -68,6 +69,7 @@ const WorkspaceManager = () => {
       [shapeIndex]: glassApplication
     }));
     setPlacementMode(null);
+    // Keep shape selected so user can see what they just applied
   };
 
   const handleRemoveGlass = (shapeIndex) => {
@@ -142,47 +144,32 @@ const WorkspaceManager = () => {
           />
         </div>
         
-        <button 
-          className="toggle-inventory-btn"
-          onClick={() => setShowInventory(!showInventory)}
-        >
-          {showInventory ? 'Hide' : 'Show'} Glass Inventory
-        </button>
       </div>
 
       <div className="workspace-content">
-        <div className="canvas-container">
-          {selectedTemplate && (
-            <DesignCanvas
-              template={selectedTemplate}
-              appliedGlass={appliedGlass}
-              selectedShapeIndex={selectedShapeIndex}
-              onShapeSelect={handleShapeSelect}
-              placementMode={placementMode}
-              onGlassApplied={handleGlassApplied}
-              onRemoveGlass={handleRemoveGlass}
-            />
-          )}
-        </div>
-        
-        {showInventory && (
-          <div className="inventory-panel">
-            <GlassInventoryPanel
-              inventory={glassInventory}
-              onGlassSelect={handleGlassSelect}
-              selectedShapeIndex={selectedShapeIndex}
-            />
-          </div>
+        {selectedTemplate && (
+          <DesignCanvas
+            template={selectedTemplate}
+            appliedGlass={appliedGlass}
+            selectedShapeIndex={selectedShapeIndex}
+            onShapeSelect={handleShapeSelect}
+            placementMode={placementMode}
+            onGlassApplied={handleGlassApplied}
+            onRemoveGlass={handleRemoveGlass}
+            onPiecesLoaded={setPieces}
+          />
         )}
-      </div>
-      
-      <div className="project-panel">
-        <ProjectPanel
-          projectName={projectName}
-          statistics={calculateStatistics()}
-          appliedGlass={appliedGlass}
+        
+        <SidePanel
           glassInventory={glassInventory}
+          appliedGlass={appliedGlass}
+          pieces={pieces}
+          selectedShapeIndex={selectedShapeIndex}
+          onGlassSelect={handleGlassSelect}
+          onShapeSelect={handleShapeSelect}
           onRemoveGlass={handleRemoveGlass}
+          isOpen={showSidePanel}
+          onToggle={() => setShowSidePanel(!showSidePanel)}
         />
       </div>
     </div>

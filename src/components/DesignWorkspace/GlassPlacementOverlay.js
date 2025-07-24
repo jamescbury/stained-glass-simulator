@@ -72,13 +72,24 @@ const GlassPlacementOverlay = ({
         pointerEvents: 'none'
       }}
     >
-      <div className="placement-preview" style={{ pointerEvents: 'auto' }}>
+      <div className="placement-preview" style={{ 
+        pointerEvents: 'auto',
+        overflow: 'hidden',
+        borderRadius: '4px'
+      }}>
         {glassData.imageUrl || glassData.imageData ? (
           <div 
             className="glass-texture-preview"
             style={{
               backgroundImage: `url(${glassData.imageData || glassData.imageUrl})`,
-              transform: `rotate(${rotation}deg) translate(${position.x}px, ${position.y}px)`
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              width: '200%',
+              height: '200%',
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: `translate(-50%, -50%) rotate(${rotation}deg) translate(${position.x}px, ${position.y}px)`
             }}
           />
         ) : (
@@ -86,6 +97,8 @@ const GlassPlacementOverlay = ({
             className="glass-color-preview"
             style={{
               backgroundColor: glassData.primaryColor || '#ccc',
+              width: '100%',
+              height: '100%',
               transform: `rotate(${rotation}deg)`
             }}
           />
@@ -118,8 +131,8 @@ const GlassPlacementOverlay = ({
           <label>Rotation: {rotation}°</label>
           <input
             type="range"
-            min="0"
-            max="360"
+            min="-180"
+            max="180"
             value={rotation}
             onChange={handleRotationChange}
             className="rotation-slider"

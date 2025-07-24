@@ -10,7 +10,8 @@ const DesignCanvas = ({
   onShapeSelect,
   placementMode,
   onGlassApplied,
-  onRemoveGlass 
+  onRemoveGlass,
+  onPiecesLoaded 
 }) => {
   const [pieces, setPieces] = useState([]);
   const [zoom, setZoom] = useState(1);
@@ -57,6 +58,11 @@ const DesignCanvas = ({
       const result = parseSVGPieces(modifiedContent, true);
       setPieces(result.pieces);
       setModifiedSvgContent(result.modifiedSvg);
+      
+      // Notify parent component about loaded pieces
+      if (onPiecesLoaded) {
+        onPiecesLoaded(result.pieces);
+      }
       
       // Reset zoom and pan when template changes
       setZoom(1);
@@ -126,10 +132,16 @@ const DesignCanvas = ({
                   
                   element.style.cursor = 'pointer';
                   element.style.pointerEvents = 'all';
+                  element.style.vectorEffect = 'non-scaling-stroke';
+                  
                   // Ensure fill is visible for clicking
                   if (!element.getAttribute('fill') || element.getAttribute('fill') === 'none') {
                     element.setAttribute('fill', 'transparent');
                   }
+                  
+                  // Set initial stroke to black
+                  element.style.stroke = '#000000';
+                  element.style.strokeWidth = '2px';
                   element.addEventListener('click', (e) => {
                     e.stopPropagation();
                     onShapeSelectRef.current(index);
@@ -144,6 +156,96 @@ const DesignCanvas = ({
   }, [template]); // Only re-run when template changes, not onShapeSelect
 
 
+  // Create glass rendering with clip paths
+  useEffect(() => {
+    if (!svgRef.current) return;
+
+
+    // Get or create defs element
+    let defs = svgRef.current.querySelector('defs');
+    if (!defs) {
+      defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+      svgRef.current.insertBefore(defs, svgRef.current.firstChild);
+    }
+
+    // Clear existing clip paths and glass groups
+    const existingClips = defs.querySelectorAll('clipPath[id^="glass-clip-"]');
+    existingClips.forEach(c => c.remove());
+    
+    const existingGlass = svgRef.current.querySelectorAll('g[id^="glass-group-"]');
+    existingGlass.forEach(g => g.remove());
+
+    // Create glass renders for each applied piece
+    Object.entries(appliedGlass).forEach(([shapeIndex, application]) => {
+      
+      const shapeElement = svgRef.current.querySelector(`[data-piece-index="${shapeIndex}"]`);
+      if (!shapeElement) return;
+      
+      const bbox = shapeElement.getBBox();
+      
+      // Create clip path from shape
+      const clipPath = document.createElementNS('http://www.w3.org/2000/svg', 'clipPath');
+      clipPath.setAttribute('id', `glass-clip-${shapeIndex}`);
+      
+      // Clone the shape for the clip path
+      const clipShape = shapeElement.cloneNode(true);
+      clipShape.removeAttribute('data-piece-index');
+      clipShape.removeAttribute('style');
+      clipPath.appendChild(clipShape);
+      defs.appendChild(clipPath);
+      
+      // Create a group for the glass
+      const glassGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      glassGroup.setAttribute('id', `glass-group-${shapeIndex}`);
+      glassGroup.setAttribute('clip-path', `url(#glass-clip-${shapeIndex})`);
+      
+      if (application.glassData.imageUrl || application.glassData.imageData) {
+        // Create image element
+        const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+        image.setAttribute('href', application.glassData.imageData || application.glassData.imageUrl);
+        
+        // Calculate the diagonal of the bounding box to ensure coverage at any rotation
+        const diagonal = Math.sqrt(bbox.width * bbox.width + bbox.height * bbox.height);
+        
+        // Make the image square with size equal to diagonal to ensure full coverage
+        const size = diagonal * 1.2; // 20% extra for safety
+        const centerX = bbox.x + bbox.width / 2;
+        const centerY = bbox.y + bbox.height / 2;
+        const x = centerX - size / 2;
+        const y = centerY - size / 2;
+        
+        image.setAttribute('x', x);
+        image.setAttribute('y', y);
+        image.setAttribute('width', size);
+        image.setAttribute('height', size);
+        image.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+        
+        // Apply rotation around shape center
+        if (application.placement.rotation !== 0) {
+          image.setAttribute('transform', 
+            `rotate(${application.placement.rotation} ${centerX} ${centerY})`
+          );
+        }
+        
+        glassGroup.appendChild(image);
+      } else {
+        // Create a filled rectangle for solid color glass
+        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        rect.setAttribute('x', bbox.x);
+        rect.setAttribute('y', bbox.y);
+        rect.setAttribute('width', bbox.width);
+        rect.setAttribute('height', bbox.height);
+        rect.setAttribute('fill', application.glassData.primaryColor || '#cccccc');
+        rect.setAttribute('fill-opacity', '0.9');
+        
+        glassGroup.appendChild(rect);
+      }
+      
+      // Insert the glass group before the shape (so it renders behind)
+      shapeElement.parentNode.insertBefore(glassGroup, shapeElement);
+    });
+  }, [appliedGlass, pieces]); // Add pieces dependency to ensure SVG is ready
+
   // Update visual appearance based on glass application
   useEffect(() => {
     if (!svgRef.current) return;
@@ -153,31 +255,33 @@ const DesignCanvas = ({
       
       const element = svgRef.current.querySelector(`[data-piece-index="${index}"]`);
       if (element) {
-        // Apply glass if present
+        // Always keep shape transparent or with original fill for clicking
         const glassApplication = appliedGlass[index];
-        if (glassApplication) {
-          // For now, just show the primary color
-          // Later we'll implement proper glass texture rendering
-          element.style.fill = glassApplication.glassData.primaryColor || '#ccc';
-          element.style.fillOpacity = '0.8';
+        const originalFill = element.getAttribute('data-original-fill');
+        
+        if (!originalFill || originalFill === 'none') {
+          element.setAttribute('fill', 'transparent');
         } else {
-          // Keep transparent fill for clicking
-          const originalFill = element.getAttribute('data-original-fill');
-          if (!originalFill || originalFill === 'none') {
-            element.style.fill = 'transparent';
-          } else {
-            element.style.fill = originalFill;
-          }
-          element.style.fillOpacity = '';
+          element.setAttribute('fill', originalFill);
         }
         
-        // Highlight selected shape
+        // The actual glass rendering is handled by the clip path approach
+        if (glassApplication) {
+          element.setAttribute('fill-opacity', '0.1'); // Very subtle to show shape boundary
+        } else {
+          element.removeAttribute('fill-opacity');
+        }
+        
+        // Ensure strokes scale properly
+        element.style.vectorEffect = 'non-scaling-stroke';
+        
+        // Highlight selected shape with blue, others black
         if (selectedShapeIndex === index) {
-          element.style.stroke = '#ff0000';
-          element.style.strokeWidth = '3';
+          element.style.stroke = '#0080ff';
+          element.style.strokeWidth = '3px';
         } else {
           element.style.stroke = '#000000';
-          element.style.strokeWidth = '1';
+          element.style.strokeWidth = '2px';
         }
         
         // Ensure pointer events are always on
@@ -281,25 +385,6 @@ const DesignCanvas = ({
         )}
       </div>
 
-      {/* Shape Info Panel */}
-      {selectedShapeIndex !== null && (
-        <div className="shape-info-panel">
-          <h4>Shape #{selectedShapeIndex + 1}</h4>
-          {appliedGlass[selectedShapeIndex] ? (
-            <>
-              <p>Glass: {appliedGlass[selectedShapeIndex].glassData.name}</p>
-              <button 
-                className="remove-glass-btn"
-                onClick={() => onRemoveGlass(selectedShapeIndex)}
-              >
-                Remove Glass
-              </button>
-            </>
-          ) : (
-            <p>No glass applied</p>
-          )}
-        </div>
-      )}
     </div>
   );
 };

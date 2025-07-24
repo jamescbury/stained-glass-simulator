@@ -38,6 +38,12 @@
   min-width: 200px;
 }
 
+.project-name {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
 .project-name input {
   padding: 8px 12px;
   border: 1px solid #ddd;
@@ -45,56 +51,16 @@
   font-size: 16px;
   font-weight: 500;
   width: 300px;
+  text-align: center;
 }
 
-.toggle-inventory-btn {
-  margin-left: auto;
-  padding: 8px 16px;
-  background-color: #2c3e50;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.2s;
-}
-
-.toggle-inventory-btn:hover {
-  background-color: #34495e;
-}
 
 /* Main Content Area */
 .workspace-content {
-  display: flex;
   flex: 1;
-  overflow: hidden;
-}
-
-.canvas-container {
-  flex: 1;
-  display: flex;
   position: relative;
-  background-color: #e0e0e0;
   overflow: hidden;
-}
-
-/* Inventory Panel */
-.inventory-panel {
-  width: 300px;
-  background-color: white;
-  border-left: 1px solid #ddd;
-  display: flex;
-  flex-direction: column;
-  box-shadow: -2px 0 4px rgba(0,0,0,0.05);
-}
-
-/* Project Panel */
-.project-panel {
-  height: 200px;
-  background-color: white;
-  border-top: 1px solid #ddd;
-  overflow-y: auto;
-  box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
+  background-color: #e0e0e0;
 }
 
 /* Empty State */
@@ -124,16 +90,6 @@
 }
 
 /* Responsive Design */
-@media (max-width: 1024px) {
-  .inventory-panel {
-    width: 250px;
-  }
-  
-  .project-name input {
-    width: 200px;
-  }
-}
-
 @media (max-width: 768px) {
   .workspace-header {
     flex-wrap: wrap;
@@ -147,14 +103,5 @@
   
   .project-name input {
     width: 100%;
-  }
-  
-  .inventory-panel {
-    position: absolute;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    z-index: 100;
-    box-shadow: -4px 0 8px rgba(0,0,0,0.1);
   }
 }
