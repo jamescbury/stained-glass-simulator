@@ -76,6 +76,16 @@ const PatternManager = () => {
     setViewMode('gallery');
   };
 
+  const handlePatternModified = async (patternId, updates) => {
+    try {
+      await patternStorage.updatePattern(patternId, updates);
+      // Reload patterns to reflect changes
+      await loadPatterns();
+    } catch (error) {
+      console.error('Error updating pattern:', error);
+    }
+  };
+
   return (
     <div className="pattern-manager">
       <div className="pattern-header">
@@ -108,6 +118,7 @@ const PatternManager = () => {
         <PatternViewer
           pattern={selectedPattern}
           onBack={handleBackToGallery}
+          onPatternModified={handlePatternModified}
         />
       )}
     </div>

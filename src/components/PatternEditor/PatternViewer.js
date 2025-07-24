@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { parseSVGPieces } from '../../utils/svgParser';
 import { applyHighlightFix, removeHighlightFix, setupSVGHighlighting } from '../../utils/svgHighlightFix';
 
-const PatternViewer = ({ pattern, onBack }) => {
+const PatternViewer = ({ pattern, onBack, onPatternModified }) => {
   const [pieces, setPieces] = useState([]);
   const [deletedPieces, setDeletedPieces] = useState(new Set());
   const [selectedPiece, setSelectedPiece] = useState(null);
@@ -123,6 +123,67 @@ const PatternViewer = ({ pattern, onBack }) => {
       setSelectedPiece(null);
     }
   };
+
+  // Generate modified SVG content with deleted pieces removed
+  const generateModifiedSVG = useCallback(() => {
+    if (!svgRef.current || deletedPieces.size === 0) {
+      return pattern.svgContent; // Return original if no changes
+    }
+
+    // Clone the SVG element
+    const svgClone = svgRef.current.cloneNode(true);
+    
+    // Remove deleted pieces from the clone
+    deletedPieces.forEach(index => {
+      const element = svgClone.querySelector(`[data-piece-index="${index}"]`);
+      if (element) {
+        element.remove();
+      }
+    });
+
+    // Remove data attributes we added for tracking
+    const allElements = svgClone.querySelectorAll('[data-piece-index]');
+    allElements.forEach(el => {
+      el.removeAttribute('data-piece-index');
+      el.removeAttribute('data-original-stroke');
+      el.removeAttribute('data-original-stroke-width');
+      el.removeAttribute('data-original-fill');
+      el.removeAttribute('data-original-fill-opacity');
+      // Clean up any inline styles we added
+      el.style.cursor = '';
+      el.style.vectorEffect = '';
+      el.style.strokeWidth = '';
+      el.style.stroke = '';
+      el.style.strokeOpacity = '';
+      el.style.filter = '';
+      el.style.zIndex = '';
+      el.classList.remove('highlighting-selected', 'highlighting-hover');
+    });
+
+    // Return the cleaned SVG as a string
+    return svgClone.outerHTML;
+  }, [deletedPieces, pattern.svgContent]);
+
+  // Save modifications when component unmounts
+  useEffect(() => {
+    return () => {
+      if (onPatternModified && deletedPieces.size > 0) {
+        const modifiedSvg = generateModifiedSVG();
+        onPatternModified(pattern.id, { svgContent: modifiedSvg });
+      }
+    };
+  }, [generateModifiedSVG, onPatternModified, pattern.id, deletedPieces]);
+
+  // Wrap onBack to save changes first
+  const handleBackClick = useCallback(() => {
+    if (onPatternModified && deletedPieces.size > 0) {
+      const modifiedSvg = generateModifiedSVG();
+      onPatternModified(pattern.id, { svgContent: modifiedSvg });
+    }
+    if (onBack) {
+      onBack();
+    }
+  }, [onBack, onPatternModified, generateModifiedSVG, pattern.id, deletedPieces]);
 
   const normalizeSVGSize = () => {
     if (!svgContainerRef.current) return;

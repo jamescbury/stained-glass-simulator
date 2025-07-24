@@ -1,7 +1,7 @@
 import { openDB } from 'idb';
 
 const DB_NAME = 'StainedGlassDB';
-const DB_VERSION = 1;
+const DB_VERSION = 2; // Updated to match patternStorage.js
 const GLASS_STORE = 'glassInventory';
 
 // Prevent concurrent bulk imports
@@ -10,7 +10,7 @@ let bulkImportInProgress = false;
 // Initialize the database
 async function initDB() {
   return openDB(DB_NAME, DB_VERSION, {
-    upgrade(db) {
+    upgrade(db, oldVersion) {
       // Create glass inventory store if it doesn't exist
       if (!db.objectStoreNames.contains(GLASS_STORE)) {
         const store = db.createObjectStore(GLASS_STORE, { 
@@ -23,6 +23,18 @@ async function initDB() {
         store.createIndex('texture', 'texture', { unique: false });
         store.createIndex('color', 'primaryColor', { unique: false });
         store.createIndex('tags', 'tags', { unique: false, multiEntry: true });
+      }
+      
+      // Create patterns store if it doesn't exist (for v2)
+      if (!db.objectStoreNames.contains('patterns')) {
+        const patternStore = db.createObjectStore('patterns', {
+          keyPath: 'id',
+          autoIncrement: true
+        });
+        
+        patternStore.createIndex('name', 'name', { unique: false });
+        patternStore.createIndex('type', 'type', { unique: false });
+        patternStore.createIndex('uploadDate', 'uploadDate', { unique: false });
       }
     }
   });
