@@ -1,0 +1,640 @@
+/* Pattern Manager Styles */
+.pattern-manager {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.pattern-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.pattern-header h2 {
+  font-size: 2rem;
+  color: #333;
+  margin: 0;
+}
+
+.back-to-gallery-btn {
+  padding: 0.75rem 1.5rem;
+  background: #f5f5f5;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.back-to-gallery-btn:hover {
+  background: #e0e0e0;
+  transform: translateX(-2px);
+}
+
+/* Pattern Uploader Styles */
+.pattern-uploader {
+  margin-bottom: 3rem;
+}
+
+.upload-options {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.or-divider {
+  color: #999;
+  font-weight: 500;
+}
+
+.template-btn {
+  flex: 1;
+  max-width: 300px;
+  padding: 3rem;
+  background: #f5f5f5;
+  border: 3px dashed #e0e0e0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-align: center;
+}
+
+.template-btn:hover {
+  border-color: #2196F3;
+  background: #e3f2fd;
+}
+
+.template-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.template-btn p {
+  margin: 0;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+/* Template Gallery */
+.template-gallery {
+  background: #f9f9f9;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-top: 2rem;
+}
+
+.template-gallery h3 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.template-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.template-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.template-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.template-preview {
+  width: 100%;
+  height: 150px;
+  background: #f5f5f5;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+
+.template-preview img {
+  max-width: 90%;
+  max-height: 90%;
+  object-fit: contain;
+}
+
+.template-card h4 {
+  margin: 0.5rem 0;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.template-card p {
+  margin: 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* Pattern Gallery Styles */
+.pattern-gallery {
+  margin-top: 2rem;
+}
+
+.pattern-gallery h3 {
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.empty-gallery {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: #f5f5f5;
+  border-radius: 12px;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.pattern-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.pattern-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: all 0.3s;
+  cursor: pointer;
+  position: relative;
+}
+
+.pattern-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  transform: translateY(-2px);
+}
+
+.pattern-preview {
+  height: 200px;
+  background: #f9f9f9;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.svg-preview-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.svg-preview-content svg {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto !important;
+  height: auto !important;
+}
+
+.pattern-info {
+  padding: 1rem;
+}
+
+.pattern-info h4 {
+  margin: 0 0 0.5rem 0;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.pattern-meta {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.pattern-type {
+  padding: 0.25rem 0.75rem;
+  background: #e3f2fd;
+  color: #1976d2;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+}
+
+.pattern-size {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.pattern-date {
+  color: #999;
+  font-size: 0.85rem;
+}
+
+.delete-pattern-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  opacity: 0;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.pattern-card:hover .delete-pattern-btn {
+  opacity: 1;
+}
+
+.delete-pattern-btn:hover {
+  background: #f44336;
+  transform: scale(1.1);
+}
+
+/* Pattern Viewer Styles */
+.pattern-viewer {
+  height: calc(100vh - 200px);
+  min-height: 600px;
+}
+
+.viewer-layout {
+  display: flex;
+  gap: 2rem;
+  height: 100%;
+}
+
+.svg-container {
+  flex: 1;
+  background: #f5f5f5;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  user-select: none;
+  cursor: grab;
+}
+
+.svg-container.panning {
+  cursor: grabbing;
+}
+
+.svg-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: white;
+}
+
+.svg-wrapper .svg-content {
+  will-change: transform;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.svg-wrapper .svg-content svg {
+  display: block;
+}
+
+/* Zoom Controls */
+.zoom-controls {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  z-index: 10;
+}
+
+.zoom-controls button {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: #f5f5f5;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.zoom-controls button:hover {
+  background: #e0e0e0;
+}
+
+.zoom-level {
+  padding: 0 0.5rem;
+  font-size: 0.9rem;
+  color: #666;
+  min-width: 50px;
+  text-align: center;
+}
+
+/* SVG Highlighting Styles */
+.svg-wrapper svg {
+  width: auto !important;
+  height: auto !important;
+}
+
+.svg-wrapper svg * {
+  vector-effect: non-scaling-stroke;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+/* Ensure vector-effect works on transformed elements */
+.svg-wrapper svg *[transform] {
+  vector-effect: non-scaling-stroke !important;
+}
+
+/* Enhanced highlighting for selected pieces */
+.svg-wrapper svg [data-piece-index].highlighting-selected {
+  filter: drop-shadow(0 0 8px rgba(255, 0, 0, 0.8));
+  stroke: #ff0000 !important;
+  stroke-opacity: 1 !important;
+}
+
+.svg-wrapper svg [data-piece-index].highlighting-hover {
+  filter: drop-shadow(0 0 4px rgba(0, 128, 255, 0.6));
+  stroke: #0080ff !important;
+  stroke-opacity: 0.8 !important;
+}
+
+.svg-wrapper svg path[data-piece-index],
+.svg-wrapper svg polygon[data-piece-index],
+.svg-wrapper svg rect[data-piece-index],
+.svg-wrapper svg circle[data-piece-index],
+.svg-wrapper svg ellipse[data-piece-index] {
+  transition: stroke-width 0.2s ease;
+}
+
+/* Ensure all shape types are selectable */
+.svg-wrapper svg path[data-piece-index],
+.svg-wrapper svg polygon[data-piece-index],
+.svg-wrapper svg rect[data-piece-index],
+.svg-wrapper svg circle[data-piece-index],
+.svg-wrapper svg ellipse[data-piece-index],
+.svg-wrapper svg polyline[data-piece-index] {
+  pointer-events: all !important;
+  cursor: pointer !important;
+}
+
+.svg-wrapper svg path[data-piece-index]:hover,
+.svg-wrapper svg polygon[data-piece-index]:hover,
+.svg-wrapper svg rect[data-piece-index]:hover,
+.svg-wrapper svg circle[data-piece-index]:hover,
+.svg-wrapper svg ellipse[data-piece-index]:hover,
+.svg-wrapper svg polyline[data-piece-index]:hover {
+  opacity: 0.8;
+}
+
+.svg-wrapper svg g {
+  pointer-events: none !important;
+}
+
+/* Ensure the SVG itself allows events to pass through to children */
+.svg-wrapper svg {
+  pointer-events: all;
+}
+
+/* Make sure groups can't block events */
+.svg-wrapper svg g,
+.svg-wrapper svg g > g {
+  pointer-events: none !important;
+}
+
+/* Any shape without data-piece-index should not block events */
+.svg-wrapper svg path:not([data-piece-index]),
+.svg-wrapper svg polygon:not([data-piece-index]),
+.svg-wrapper svg rect:not([data-piece-index]),
+.svg-wrapper svg circle:not([data-piece-index]),
+.svg-wrapper svg ellipse:not([data-piece-index]),
+.svg-wrapper svg polyline:not([data-piece-index]) {
+  pointer-events: none !important;
+}
+
+/* Override container cursor when hovering pieces */
+.svg-container:has([data-piece-index]:hover) {
+  cursor: pointer !important;
+}
+
+.pieces-panel {
+  width: 300px;
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  overflow-y: auto;
+}
+
+.pieces-panel h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.pieces-list {
+  margin-bottom: 2rem;
+}
+
+.piece-item {
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  background: #f5f5f5;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  color: #333;
+  position: relative;
+}
+
+.piece-item:hover {
+  background: #e3f2fd;
+}
+
+.piece-item.hovered {
+  background: #e3f2fd;
+  border: 1px solid #2196F3;
+}
+
+.piece-item.selected {
+  background: #4CAF50;
+  color: white;
+}
+
+.piece-item.selected .piece-number,
+.piece-item.selected .piece-type,
+.piece-item.selected .piece-area {
+  color: white;
+}
+
+.piece-item.selected.hovered {
+  background: #45a049;
+}
+
+.piece-number {
+  font-weight: bold;
+  font-size: 1.1rem;
+  min-width: 40px;
+  color: #333;
+}
+
+.piece-details {
+  flex: 1;
+  font-size: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.piece-type {
+  text-transform: capitalize;
+  font-weight: 500;
+  color: #333;
+}
+
+.piece-color {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: 1px solid rgba(0,0,0,0.2);
+  margin-top: 0.25rem;
+}
+
+.piece-id,
+.piece-area {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.piece-item.selected .piece-id,
+.piece-item.selected .piece-area {
+  opacity: 1;
+  color: white;
+}
+
+.delete-piece-btn {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 4px;
+  background: rgba(244, 67, 54, 0.1);
+  color: #f44336;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  opacity: 0;
+  transition: all 0.2s;
+}
+
+.piece-item:hover .delete-piece-btn {
+  opacity: 1;
+}
+
+.delete-piece-btn:hover {
+  background: #f44336;
+  color: white;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.piece-item.selected .delete-piece-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.piece-item.selected .delete-piece-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.viewer-info {
+  padding: 1rem;
+  background: #e3f2fd;
+  border-radius: 8px;
+}
+
+.viewer-info p {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+  color: #1976d2;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .pattern-manager {
+    padding: 1rem;
+  }
+  
+  .upload-options {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .template-btn {
+    max-width: 100%;
+  }
+  
+  .or-divider {
+    display: none;
+  }
+  
+  .template-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
+  }
+  
+  .pattern-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .viewer-layout {
+    flex-direction: column;
+  }
+  
+  .pieces-panel {
+    width: 100%;
+    max-height: 300px;
+  }
+}
