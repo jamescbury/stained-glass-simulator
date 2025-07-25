@@ -1,11 +1,24 @@
 // Parse SVG content and extract individual pieces
 export function parseSVGPieces(svgContent, modifyOriginal = false) {
+  // Guard against empty or invalid content
+  if (!svgContent || typeof svgContent !== 'string' || svgContent.trim() === '') {
+    return modifyOriginal ? { pieces: [], modifiedSvg: '' } : [];
+  }
+  
   const parser = new DOMParser();
   const doc = parser.parseFromString(svgContent, 'image/svg+xml');
+  
+  // Check for parser errors
+  const parserError = doc.querySelector('parsererror');
+  if (parserError) {
+    console.error('SVG parsing error:', parserError.textContent);
+    return modifyOriginal ? { pieces: [], modifiedSvg: svgContent } : [];
+  }
+  
   const svg = doc.querySelector('svg');
   
   if (!svg) {
-    console.error('No SVG element found');
+    console.warn('No SVG element found in content');
     return modifyOriginal ? { pieces: [], modifiedSvg: svgContent } : [];
   }
 

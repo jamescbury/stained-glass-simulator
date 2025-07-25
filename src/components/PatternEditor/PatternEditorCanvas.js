@@ -14,6 +14,16 @@ const PatternEditorCanvas = ({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [pieceToDelete, setPieceToDelete] = useState(null);
 
+  // Guard against missing pattern
+  if (!pattern || !pattern.svgContent) {
+    return (
+      <div className="pattern-editor-empty">
+        <p>No pattern selected</p>
+        <button onClick={onBack}>Back to Gallery</button>
+      </div>
+    );
+  }
+
   // Create a modified SVG content that excludes deleted pieces
   const getModifiedSvgContent = () => {
     if (!pattern || !pattern.svgContent || deletedPieces.size === 0) {

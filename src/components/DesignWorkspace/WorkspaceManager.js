@@ -16,6 +16,7 @@ const WorkspaceManager = () => {
   const [selectedShapeIndex, setSelectedShapeIndex] = useState(null);
   const [placementMode, setPlacementMode] = useState(null); // null or { glassId, glassData }
   const [pieces, setPieces] = useState([]);
+  const [glassRotation, setGlassRotation] = useState(0);
 
   useEffect(() => {
     loadData();
@@ -69,6 +70,7 @@ const WorkspaceManager = () => {
       [shapeIndex]: glassApplication
     }));
     setPlacementMode(null);
+    setGlassRotation(0); // Reset rotation after applying
     // Keep shape selected so user can see what they just applied
   };
 
@@ -157,6 +159,7 @@ const WorkspaceManager = () => {
             onGlassApplied={handleGlassApplied}
             onRemoveGlass={handleRemoveGlass}
             onPiecesLoaded={setPieces}
+            glassRotation={glassRotation}
           />
         )}
         
@@ -170,6 +173,14 @@ const WorkspaceManager = () => {
           onRemoveGlass={handleRemoveGlass}
           isOpen={showSidePanel}
           onToggle={() => setShowSidePanel(!showSidePanel)}
+          placementMode={placementMode}
+          onGlassApplied={handleGlassApplied}
+          onCancelPlacement={() => {
+            setPlacementMode(null);
+            setGlassRotation(0);
+          }}
+          glassRotation={glassRotation}
+          onRotationChange={setGlassRotation}
         />
       </div>
     </div>

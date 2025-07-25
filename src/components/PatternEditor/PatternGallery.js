@@ -24,47 +24,111 @@ const PatternGallery = ({ patterns, onSelectPattern, onDeletePattern }) => {
     );
   }
 
+  // Separate patterns by type
+  const defaultPatterns = patterns.filter(p => p.isDefault);
+  const customPatterns = patterns.filter(p => !p.isDefault);
+
   return (
     <div className="pattern-gallery">
-      <h3>My Templates</h3>
-      <div className="pattern-grid">
-        {patterns.map(pattern => (
-          <div 
-            key={pattern.id} 
-            className="pattern-card"
-            onClick={() => onSelectPattern(pattern)}
-          >
-            <div className="pattern-preview">
+      {/* Default Templates Section */}
+      {defaultPatterns.length > 0 && (
+        <>
+          <h3>Standard Templates</h3>
+          <div className="pattern-grid">
+            {defaultPatterns.map(pattern => (
               <div 
-                className="svg-preview-content"
-                dangerouslySetInnerHTML={{ __html: pattern.svgContent }}
-              />
-            </div>
-            
-            <div className="pattern-info">
-              <h4>{pattern.name}</h4>
-              <div className="pattern-meta">
-                <span className="pattern-type">{pattern.type}</span>
-                <span className="pattern-size">{formatFileSize(pattern.fileSize)}</span>
+                key={pattern.id} 
+                className="pattern-card default-pattern"
+                onClick={() => onSelectPattern(pattern)}
+              >
+                <div className="pattern-preview">
+                  <div 
+                    className="svg-preview-content"
+                    dangerouslySetInnerHTML={{ __html: pattern.svgContent }}
+                  />
+                </div>
+                
+                <div className="pattern-info">
+                  <h4>{pattern.name}</h4>
+                  <div className="pattern-meta">
+                    <span className="pattern-category">{pattern.category}</span>
+                    <span className="pattern-difficulty">{pattern.difficulty}</span>
+                  </div>
+                  <div className="pattern-description">
+                    {pattern.description}
+                  </div>
+                  <div className="pattern-stats">
+                    <span>{pattern.pieceCount} pieces</span>
+                  </div>
+                </div>
+                
+                <button
+                  className="delete-pattern-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDeletePattern(pattern.id);
+                  }}
+                  title="Remove template"
+                >
+                  ×
+                </button>
+                
+                <span className="default-badge">Default</span>
               </div>
-              <div className="pattern-date">
-                Added {formatDate(pattern.uploadDate)}
-              </div>
-            </div>
-            
-            <button
-              className="delete-pattern-btn"
-              onClick={(e) => {
-                e.stopPropagation();
-                onDeletePattern(pattern.id);
-              }}
-              title="Delete pattern"
-            >
-              🗑️
-            </button>
+            ))}
           </div>
-        ))}
-      </div>
+        </>
+      )}
+
+      {/* Custom Templates Section */}
+      {customPatterns.length > 0 && (
+        <>
+          <h3>My Custom Templates</h3>
+          <div className="pattern-grid">
+            {customPatterns.map(pattern => (
+              <div 
+                key={pattern.id} 
+                className="pattern-card custom-pattern"
+                onClick={() => onSelectPattern(pattern)}
+              >
+                <div className="pattern-preview">
+                  <div 
+                    className="svg-preview-content"
+                    dangerouslySetInnerHTML={{ __html: pattern.svgContent }}
+                  />
+                </div>
+                
+                <div className="pattern-info">
+                  <h4>{pattern.name}</h4>
+                  <div className="pattern-meta">
+                    <span className="pattern-type">Custom</span>
+                    <span className="pattern-size">{formatFileSize(pattern.fileSize)}</span>
+                  </div>
+                  <div className="pattern-date">
+                    Added {formatDate(pattern.uploadDate)}
+                  </div>
+                  {pattern.pieceCount > 0 && (
+                    <div className="pattern-stats">
+                      <span>{pattern.pieceCount} pieces</span>
+                    </div>
+                  )}
+                </div>
+                
+                <button
+                  className="delete-pattern-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDeletePattern(pattern.id);
+                  }}
+                  title="Delete pattern"
+                >
+                  🗑️
+                </button>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 };

@@ -9,10 +9,8 @@ const GlassPlacementOverlay = ({
   pan,
   containerSize,
   svgContainer,
-  onConfirm, 
-  onCancel 
+  rotation = 0
 }) => {
-  const [rotation, setRotation] = useState(0);
   const [position] = useState({ x: 0, y: 0 }); // TODO: implement drag functionality
   const overlayRef = useRef(null);
   const [overlayPosition, setOverlayPosition] = useState({ x: 0, y: 0, width: 0, height: 0 });
@@ -36,32 +34,14 @@ const GlassPlacementOverlay = ({
         height: shapeRect.height
       });
       
-      console.log('Overlay position:', {
-        shapeRect,
-        viewportRect,
-        relativeX,
-        relativeY,
-        width: shapeRect.width,
-        height: shapeRect.height
-      });
+      // Overlay position calculated
     }
   }, [pieceElement, zoom, pan, svgContainer]);
 
-  const handleRotationChange = (e) => {
-    setRotation(parseInt(e.target.value));
-  };
-
-  const handleConfirm = () => {
-    onConfirm({
-      rotation,
-      position,
-      timestamp: new Date().toISOString()
-    });
-  };
-
   return (
+    /* Glass preview on the shape - no controls */
     <div 
-      className="glass-placement-overlay" 
+      className="glass-placement-preview" 
       ref={overlayRef}
       style={{
         position: 'absolute',
@@ -73,9 +53,10 @@ const GlassPlacementOverlay = ({
       }}
     >
       <div className="placement-preview" style={{ 
-        pointerEvents: 'auto',
         overflow: 'hidden',
-        borderRadius: '4px'
+        borderRadius: '4px',
+        width: '100%',
+        height: '100%'
       }}>
         {glassData.imageUrl || glassData.imageData ? (
           <div 
@@ -84,8 +65,8 @@ const GlassPlacementOverlay = ({
               backgroundImage: `url(${glassData.imageData || glassData.imageUrl})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
-              width: '200%',
-              height: '200%',
+              width: `${Math.SQRT2 * 100}%`, // ~141% to cover diagonal
+              height: `${Math.SQRT2 * 100}%`,
               position: 'absolute',
               top: '50%',
               left: '50%',
@@ -113,46 +94,6 @@ const GlassPlacementOverlay = ({
             <div className="grain-arrow">↕</div>
           </div>
         )}
-      </div>
-
-      <div 
-        className="placement-controls"
-        style={{
-          position: 'absolute',
-          top: '100%',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          marginTop: '10px',
-          pointerEvents: 'auto',
-          scale: Math.min(1.2, Math.max(0.5, 1 / Math.sqrt(zoom))) // Scale controls inversely to zoom, but not too extreme
-        }}
-      >
-        <div className="rotation-control">
-          <label>Rotation: {rotation}°</label>
-          <input
-            type="range"
-            min="-180"
-            max="180"
-            value={rotation}
-            onChange={handleRotationChange}
-            className="rotation-slider"
-          />
-        </div>
-        
-        <div className="placement-actions">
-          <button 
-            className="confirm-btn"
-            onClick={handleConfirm}
-          >
-            Apply Glass
-          </button>
-          <button 
-            className="cancel-btn"
-            onClick={onCancel}
-          >
-            Cancel
-          </button>
-        </div>
       </div>
     </div>
   );

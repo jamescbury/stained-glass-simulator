@@ -10,7 +10,12 @@ const SidePanel = ({
   onShapeSelect,
   onRemoveGlass,
   isOpen,
-  onToggle 
+  onToggle,
+  placementMode,
+  onGlassApplied,
+  onCancelPlacement,
+  glassRotation,
+  onRotationChange
 }) => {
   const [activeTab, setActiveTab] = useState('inventory'); // 'inventory' or 'applied'
   const [searchFilter, setSearchFilter] = useState('');
@@ -101,6 +106,56 @@ const SidePanel = ({
 
           {activeTab === 'inventory' ? (
             <div className="inventory-content">
+              {/* Glass Placement Controls */}
+              {placementMode && selectedShapeIndex !== null && (
+                <div className="glass-placement-section">
+                  <h3>Glass Placement</h3>
+                  <div className="placement-preview-info">
+                    <span className="glass-name">{placementMode.glassData.name}</span>
+                    <span className="shape-info">Shape #{selectedShapeIndex + 1}</span>
+                  </div>
+                  <div className="rotation-control">
+                    <label>Rotation: {glassRotation}°</label>
+                    <input
+                      type="range"
+                      min="-180"
+                      max="180"
+                      value={glassRotation}
+                      onChange={(e) => onRotationChange(parseInt(e.target.value))}
+                      className="rotation-slider"
+                    />
+                  </div>
+                  <div className="placement-actions">
+                    <button 
+                      className="confirm-btn"
+                      onClick={() => {
+                        onGlassApplied(selectedShapeIndex, {
+                          glassId: placementMode.glassId,
+                          glassData: placementMode.glassData,
+                          placement: {
+                            rotation: glassRotation,
+                            position: { x: 0, y: 0 },
+                            timestamp: new Date().toISOString()
+                          }
+                        });
+                        onRotationChange(0); // Reset rotation
+                      }}
+                    >
+                      Apply Glass
+                    </button>
+                    <button 
+                      className="cancel-btn"
+                      onClick={() => {
+                        onCancelPlacement();
+                        onRotationChange(0);
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+              
               <div className="search-filter">
                 <input
                   type="text"
@@ -110,16 +165,15 @@ const SidePanel = ({
                   className="search-input"
                 />
               </div>
-              {selectedShapeIndex === null && (
+              {selectedShapeIndex === null && !placementMode && (
                 <div className="selection-hint">
                   <p>👆 Select a shape in the canvas to apply glass</p>
                 </div>
               )}
               <div className="glass-container">
-                {colorGroups.map(group => (
-                  <div key={group.color} className="color-group">
-                    <div className="glass-grid">
-                      {group.items.map(glass => (
+                <div className="glass-grid">
+                  {colorGroups.flatMap(group => 
+                    group.items.map(glass => (
                       <div 
                         key={glass.id}
                         className="glass-tile"
@@ -143,10 +197,9 @@ const SidePanel = ({
                         )}
                         <span className="glass-label">{glass.code || glass.name}</span>
                       </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
+                    ))
+                  )}
+                </div>
               </div>
             </div>
           ) : (

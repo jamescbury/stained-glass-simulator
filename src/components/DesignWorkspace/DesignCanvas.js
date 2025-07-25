@@ -12,7 +12,8 @@ const DesignCanvas = ({
   onGlassApplied,
   onRemoveGlass,
   onPiecesLoaded,
-  hiddenPieces = new Set() 
+  hiddenPieces = new Set(),
+  glassRotation = 0
 }) => {
   const [pieces, setPieces] = useState([]);
   const [zoom, setZoom] = useState(1);
@@ -108,13 +109,7 @@ const DesignCanvas = ({
                 height: Math.round(containerHeight)
               });
               
-              console.log('Container size calculated:', {
-                svgWidth,
-                svgHeight,
-                aspectRatio,
-                containerWidth: Math.round(containerWidth),
-                containerHeight: Math.round(containerHeight)
-              });
+              // Container size calculated
             }
             
             // Make SVG responsive
@@ -126,11 +121,7 @@ const DesignCanvas = ({
               if (!piece.isDecorative) {
                 const element = svg.querySelector(`[data-piece-index="${index}"]`);
                 if (element) {
-                  // Hide if in hiddenPieces set
-                  if (hiddenPieces.has(index)) {
-                    element.style.display = 'none';
-                    return;
-                  }
+                  // Visibility will be handled by separate effect
                   
                   // Store original fill if not already stored
                   if (!element.hasAttribute('data-original-fill')) {
@@ -160,8 +151,22 @@ const DesignCanvas = ({
         }
       }, 100);
     }
-  }, [template, hiddenPieces]); // Re-run when template or hiddenPieces change
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [template?.svgContent]); // Only re-run when SVG content actually changes
 
+  // Handle piece visibility changes
+  useEffect(() => {
+    if (!svgRef.current) return;
+    
+    pieces.forEach((piece, index) => {
+      if (!piece.isDecorative) {
+        const element = svgRef.current.querySelector(`[data-piece-index="${index}"]`);
+        if (element) {
+          element.style.display = hiddenPieces.has(index) ? 'none' : 'block';
+        }
+      }
+    });
+  }, [pieces, hiddenPieces]);
 
   // Create glass rendering with clip paths
   useEffect(() => {
@@ -191,16 +196,62 @@ const DesignCanvas = ({
       
       const bbox = shapeElement.getBBox();
       
+      // Check if this shape has no fill (stroke-only)
+      const hasStrokeOnly = shapeElement.style.fill === 'none' || 
+                           shapeElement.getAttribute('fill') === 'none' ||
+                           (shapeElement.getAttribute('style') && shapeElement.getAttribute('style').includes('fill:none'));
+      
       // Create clip path from shape
       const clipPath = document.createElementNS('http://www.w3.org/2000/svg', 'clipPath');
       clipPath.setAttribute('id', `glass-clip-${shapeIndex}`);
+      // Use userSpaceOnUse to ensure clip path uses same coordinate system as the content
+      clipPath.setAttribute('clipPathUnits', 'userSpaceOnUse');
       
-      // Clone the shape for the clip path
-      const clipShape = shapeElement.cloneNode(true);
-      clipShape.removeAttribute('data-piece-index');
-      clipShape.removeAttribute('style');
+      // Create a new shape element for the clip path to avoid style conflicts
+      let clipShape;
+      const tagName = shapeElement.tagName.toLowerCase();
       
-      // If shape has transforms, we need to apply them to the clip path shape
+      if (tagName === 'path') {
+        clipShape = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        clipShape.setAttribute('d', shapeElement.getAttribute('d'));
+      } else if (tagName === 'polygon') {
+        clipShape = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        clipShape.setAttribute('points', shapeElement.getAttribute('points'));
+      } else if (tagName === 'rect') {
+        clipShape = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        ['x', 'y', 'width', 'height'].forEach(attr => {
+          if (shapeElement.hasAttribute(attr)) {
+            clipShape.setAttribute(attr, shapeElement.getAttribute(attr));
+          }
+        });
+      } else if (tagName === 'circle') {
+        clipShape = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        ['cx', 'cy', 'r'].forEach(attr => {
+          if (shapeElement.hasAttribute(attr)) {
+            clipShape.setAttribute(attr, shapeElement.getAttribute(attr));
+          }
+        });
+      } else {
+        // Fallback: clone the element
+        clipShape = shapeElement.cloneNode(true);
+        clipShape.removeAttribute('data-piece-index');
+        clipShape.removeAttribute('style');
+        clipShape.removeAttribute('class');
+      }
+      
+      // Set fill for clipping - use attribute not style to ensure it works
+      clipShape.setAttribute('fill', '#000');
+      clipShape.setAttribute('stroke', 'none');
+      
+      // Set fill-rule to ensure proper filling
+      // If the original has fill-rule, preserve it; otherwise use nonzero
+      if (shapeElement.hasAttribute('fill-rule')) {
+        clipShape.setAttribute('fill-rule', shapeElement.getAttribute('fill-rule'));
+      } else {
+        clipShape.setAttribute('fill-rule', 'nonzero');
+      }
+      
+      // Apply transforms if present
       if (shapeElement.hasAttribute('transform')) {
         clipShape.setAttribute('transform', shapeElement.getAttribute('transform'));
       }
@@ -219,9 +270,16 @@ const DesignCanvas = ({
         image.setAttribute('href', application.glassData.imageData || application.glassData.imageUrl);
         
         // Calculate size based on shape's bounding box
-        // Use a multiplier that shows more of the texture pattern
-        const sizeMultiplier = 1.5; // Show more texture by using smaller multiplier
-        const size = Math.max(bbox.width, bbox.height) * sizeMultiplier;
+        // Use diagonal to ensure full coverage at any rotation angle
+        const rotation = application.placement.rotation || 0;
+        
+        // Calculate the diagonal of the bounding box
+        // This ensures the image covers the shape even when rotated 45 degrees
+        const diagonal = Math.sqrt(bbox.width * bbox.width + bbox.height * bbox.height);
+        const padding = 20; // Add padding to ensure edges are covered
+        const size = diagonal + padding;
+        
+        // Center the square image on the shape
         const centerX = bbox.x + bbox.width / 2;
         const centerY = bbox.y + bbox.height / 2;
         const x = centerX - size / 2;
@@ -234,9 +292,9 @@ const DesignCanvas = ({
         image.setAttribute('preserveAspectRatio', 'xMidYMid slice');
         
         // Apply rotation around shape center
-        if (application.placement.rotation !== 0) {
+        if (rotation !== 0) {
           image.setAttribute('transform', 
-            `rotate(${application.placement.rotation} ${centerX} ${centerY})`
+            `rotate(${rotation} ${centerX} ${centerY})`
           );
         }
         
@@ -313,17 +371,22 @@ const DesignCanvas = ({
     setPan({ x: 0, y: 0 });
   };
 
-  const handleWheel = (e) => {
-    e.preventDefault();
-    // Disable wheel zoom - only use controls
-  };
+  // Wheel zoom is disabled - zoom only via buttons
 
   const handleMouseDown = (e) => {
-    if (e.target.closest('.glass-placement-overlay')) return;
+    // Mouse down event
+    
+    // Don't pan if clicking on overlay
+    if (e.target.closest('.glass-placement-preview') || e.target.closest('.placement-controls-fixed')) return;
+    
+    // Don't pan if clicking on a shape piece
     if (e.target.hasAttribute('data-piece-index')) return;
     
+    // Start panning for all other clicks
+    // Starting pan
     setIsPanning(true);
     setStartPan({ x: e.clientX - pan.x, y: e.clientY - pan.y });
+    e.preventDefault();
   };
 
   const handleMouseMove = (e) => {
@@ -357,7 +420,6 @@ const DesignCanvas = ({
       <div 
         className={`canvas-viewport ${isPanning ? 'panning' : ''}`}
         ref={svgContainerRef}
-        onWheel={handleWheel}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
@@ -366,7 +428,7 @@ const DesignCanvas = ({
         <div className="svg-container" 
           style={{ 
             transform: `translate(calc(-50% + ${pan.x}px), calc(-50% + ${pan.y}px)) scale(${zoom})`,
-            transformOrigin: '0 0'
+            transformOrigin: 'center center'
           }}
         >
           <div 
@@ -390,14 +452,7 @@ const DesignCanvas = ({
             pan={pan}
             containerSize={containerSize}
             svgContainer={svgContainerRef.current?.querySelector('.svg-container')}
-            onConfirm={(placement) => {
-              onGlassApplied(selectedShapeIndex, {
-                glassId: placementMode.glassId,
-                glassData: placementMode.glassData,
-                placement
-              });
-            }}
-            onCancel={() => onShapeSelect(null)}
+            rotation={glassRotation}
           />
         )}
       </div>

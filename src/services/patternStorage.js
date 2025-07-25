@@ -48,6 +48,11 @@ class PatternItem {
     this.notes = data.notes || '';
     this.uploadDate = data.uploadDate || new Date().toISOString();
     this.lastModified = new Date().toISOString();
+    this.isDefault = data.isDefault || false;
+    this.category = data.category || 'Custom';
+    this.difficulty = data.difficulty || 'intermediate';
+    this.pieceCount = data.pieceCount || 0;
+    this.description = data.description || '';
     
     // Don't set id - let IndexedDB auto-generate it
     if (data.id) {
@@ -115,5 +120,19 @@ export const patternStorage = {
   async clearAll() {
     const db = await initDB();
     await db.clear(PATTERN_STORE);
+  },
+
+  // Check if default templates have been loaded
+  async hasDefaultTemplates() {
+    const db = await initDB();
+    const patterns = await db.getAll(PATTERN_STORE);
+    return patterns.some(pattern => pattern.isDefault === true);
+  },
+
+  // Get only default templates
+  async getDefaultTemplates() {
+    const db = await initDB();
+    const patterns = await db.getAll(PATTERN_STORE);
+    return patterns.filter(pattern => pattern.isDefault === true);
   }
 };

@@ -75,17 +75,18 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  transition: transform 0.1s ease-out;
 }
 
 .svg-content-wrapper {
   position: relative;
+  pointer-events: auto;
 }
 
 .svg-content-wrapper svg {
   display: block;
   width: 100%;
   height: 100%;
+  pointer-events: auto;
 }
 
 
