@@ -11,8 +11,6 @@ const PatternViewer = ({ pattern, onBack, onPatternModified }) => {
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isPanning, setIsPanning] = useState(false);
   const [startPan, setStartPan] = useState({ x: 0, y: 0 });
-  const [mouseDown, setMouseDown] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const svgContainerRef = useRef(null);
   const svgRef = useRef(null);
 
@@ -24,10 +22,9 @@ const PatternViewer = ({ pattern, onBack, onPatternModified }) => {
       setPieces(result.pieces);
       setModifiedSvgContent(result.modifiedSvg);
       
-      // Normalize size and fit to view after loading
+      
+      // Setup event listeners after loading
       setTimeout(() => {
-        normalizeSVGSize();
-        fitToView();
         setupEventListeners(result.pieces);
       }, 100);
     }
@@ -40,28 +37,41 @@ const PatternViewer = ({ pattern, onBack, onPatternModified }) => {
       if (svg) {
         svgRef.current = svg;
         
+        // Ensure all SVG elements are visible
+        svg.style.width = 'auto';
+        svg.style.height = 'auto';
+        
         // Store original styles
         parsedPieces.forEach((piece, index) => {
           const element = svg.querySelector(`[data-piece-index="${index}"]`);
-          if (element && !piece.isDecorative) {
-            // Store original stroke and fill values
-            element.setAttribute('data-original-stroke', element.getAttribute('stroke') || 'none');
-            element.setAttribute('data-original-stroke-width', element.getAttribute('stroke-width') || '1');
-            element.setAttribute('data-original-fill', element.getAttribute('fill') || 'none');
-            element.setAttribute('data-original-fill-opacity', element.getAttribute('fill-opacity') || '1');
+          if (element) {
+            // Ensure strokes are visible for all elements
+            if (!element.getAttribute('stroke') || element.getAttribute('stroke') === 'none') {
+              element.style.stroke = '#000000';
+              element.style.strokeWidth = '2';
+            }
+            element.style.vectorEffect = 'non-scaling-stroke';
             
-            // Make element interactive
-            element.style.cursor = 'pointer';
-            
-            // Ensure element can be brought to front on interaction
-            element.addEventListener('mousedown', (e) => {
-              e.stopPropagation();
-              // Bring to front
-              element.parentNode.appendChild(element);
-            });
-            
-            element.addEventListener('mouseenter', () => setHoveredPiece(index));
-            element.addEventListener('mouseleave', () => setHoveredPiece(null));
+            if (!piece.isDecorative) {
+              // Store original stroke and fill values
+              element.setAttribute('data-original-stroke', element.getAttribute('stroke') || 'none');
+              element.setAttribute('data-original-stroke-width', element.getAttribute('stroke-width') || '1');
+              element.setAttribute('data-original-fill', element.getAttribute('fill') || 'none');
+              element.setAttribute('data-original-fill-opacity', element.getAttribute('fill-opacity') || '1');
+              
+              // Make element interactive
+              element.style.cursor = 'pointer';
+              
+              // Ensure element can be brought to front on interaction
+              element.addEventListener('mousedown', (e) => {
+                e.stopPropagation();
+                // Bring to front
+                element.parentNode.appendChild(element);
+              });
+              
+              element.addEventListener('mouseenter', () => setHoveredPiece(index));
+              element.addEventListener('mouseleave', () => setHoveredPiece(null));
+            }
           }
         });
       }
@@ -185,110 +195,37 @@ const PatternViewer = ({ pattern, onBack, onPatternModified }) => {
     }
   }, [onBack, onPatternModified, generateModifiedSVG, pattern.id, deletedPieces]);
 
-  const normalizeSVGSize = () => {
-    if (!svgContainerRef.current) return;
-    
-    const container = svgContainerRef.current;
-    const svg = container.querySelector('svg');
-    if (!svg) return;
-    
-    // Get SVG viewBox or width/height
-    const viewBox = svg.getAttribute('viewBox');
-    let svgWidth, svgHeight;
-    
-    if (viewBox) {
-      const [, , width, height] = viewBox.split(' ').map(parseFloat);
-      svgWidth = width;
-      svgHeight = height;
-    } else {
-      svgWidth = parseFloat(svg.getAttribute('width')) || 300;
-      svgHeight = parseFloat(svg.getAttribute('height')) || 300;
-    }
-    
-    // Target size similar to sunrise.svg (around 300-400 units)
-    const targetSize = 350;
-    const maxDimension = Math.max(svgWidth, svgHeight);
-    
-    // Calculate scale to normalize to target size
-    const normalizeScale = targetSize / maxDimension;
-    
-    // Apply normalization scale to the SVG itself
-    if (normalizeScale !== 1) {
-      svg.style.transform = `scale(${normalizeScale})`;
-      svg.style.transformOrigin = 'center center';
-    }
-  };
 
   const fitToView = () => {
-    if (!svgContainerRef.current) return;
-    
-    const container = svgContainerRef.current;
-    const svg = container.querySelector('svg');
-    if (!svg) return;
-    
-    const containerRect = container.getBoundingClientRect();
-    const svgRect = svg.getBoundingClientRect();
-    
-    const scaleX = (containerRect.width - 100) / svgRect.width;
-    const scaleY = (containerRect.height - 100) / svgRect.height;
-    const scale = Math.min(scaleX, scaleY, 1);
-    
-    setZoom(scale);
+    // Simply reset to 100% zoom and center
+    setZoom(1);
     setPan({ x: 0, y: 0 });
   };
 
-  const handleZoomIn = () => {
-    setZoom(prev => Math.min(prev * 1.2, 5));
-  };
-
-  const handleZoomOut = () => {
-    setZoom(prev => Math.max(prev / 1.2, 0.1));
-  };
+  const handleZoomIn = () => setZoom(prev => {
+    const newZoom = Math.min(prev * 1.2, 5);
+    return Math.round(newZoom * 100) / 100;
+  });
+  
+  const handleZoomOut = () => setZoom(prev => {
+    const newZoom = Math.max(prev / 1.2, 0.1);
+    return Math.round(newZoom * 100) / 100;
+  });
 
   const handleMouseDown = (e) => {
-    // Don't interact if clicking on controls or panels
-    if (e.target.closest('.zoom-controls') || 
-        e.target.closest('.pieces-panel')) {
-      return;
-    }
+    if (e.target.closest('.zoom-controls')) return;
+    if (e.target.hasAttribute('data-piece-index')) return;
     
-    setMouseDown(true);
-    setDragStart({ x: e.clientX, y: e.clientY });
+    setIsPanning(true);
     setStartPan({ x: e.clientX - pan.x, y: e.clientY - pan.y });
-    
-    // If clicking on a piece, don't start panning
-    if (e.target.hasAttribute('data-piece-index')) {
-      return;
-    }
   };
 
   const handleMouseMove = (e) => {
-    if (!mouseDown) return;
-    
-    // Calculate distance moved
-    const dx = e.clientX - dragStart.x;
-    const dy = e.clientY - dragStart.y;
-    const distance = Math.sqrt(dx * dx + dy * dy);
-    
-    // Start panning if moved more than threshold
-    if (distance > 3 && !isPanning) {
-      setIsPanning(true);
-    }
-    
-    if (isPanning) {
-      setPan({ x: e.clientX - startPan.x, y: e.clientY - startPan.y });
-    }
+    if (!isPanning) return;
+    setPan({ x: e.clientX - startPan.x, y: e.clientY - startPan.y });
   };
 
-  const handleMouseUp = (e) => {
-    // If clicked on a piece and didn't pan, select it
-    if (mouseDown && !isPanning && e.target.hasAttribute('data-piece-index')) {
-      const pieceIndex = parseInt(e.target.getAttribute('data-piece-index'));
-      handlePieceClick(pieceIndex);
-    }
-    
-    // Reset states
-    setMouseDown(false);
+  const handleMouseUp = () => {
     setIsPanning(false);
   };
 
@@ -296,15 +233,12 @@ const PatternViewer = ({ pattern, onBack, onPatternModified }) => {
     <div className="pattern-viewer">
       <div className="viewer-layout">
         <div 
-          className={`svg-container ${isPanning ? 'panning' : ''}`}
+          className={`canvas-viewport ${isPanning ? 'panning' : ''}`}
           ref={svgContainerRef}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
-          onMouseLeave={() => {
-            setMouseDown(false);
-            setIsPanning(false);
-          }}
+          onMouseLeave={() => setIsPanning(false)}
         >
           <div className="zoom-controls">
             <button onClick={handleZoomIn} title="Zoom In">+</button>
@@ -313,16 +247,15 @@ const PatternViewer = ({ pattern, onBack, onPatternModified }) => {
             <span className="zoom-level">{Math.round(zoom * 100)}%</span>
           </div>
           
-          <div className="svg-wrapper">
+          <div className="svg-container" 
+            style={{ 
+              transform: `translate(calc(-50% + ${pan.x}px), calc(-50% + ${pan.y}px)) scale(${zoom})`,
+              transformOrigin: '0 0'
+            }}
+          >
             <div 
               className="svg-content"
               dangerouslySetInnerHTML={{ __html: modifiedSvgContent }}
-              style={{ 
-                transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
-                transformOrigin: 'center center',
-                transition: isPanning ? 'none' : 'transform 0.2s',
-                pointerEvents: 'auto'
-              }}
             />
           </div>
         </div>

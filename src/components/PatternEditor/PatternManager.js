@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PatternUploader from './PatternUploader';
 import PatternGallery from './PatternGallery';
-import PatternViewer from './PatternViewer';
+import PatternEditorCanvas from './PatternEditorCanvas';
 import { patternStorage } from '../../services/patternStorage';
 import './PatternEditor.css';
 
@@ -115,7 +115,7 @@ const PatternManager = () => {
           )}
         </>
       ) : (
-        <PatternViewer
+        <PatternEditorCanvas
           pattern={selectedPattern}
           onBack={handleBackToGallery}
           onPatternModified={handlePatternModified}
