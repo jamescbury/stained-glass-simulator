@@ -167,7 +167,6 @@ const DesignCanvas = ({
   useEffect(() => {
     if (!svgRef.current) return;
 
-
     // Get or create defs element
     let defs = svgRef.current.querySelector('defs');
     if (!defs) {
@@ -190,42 +189,7 @@ const DesignCanvas = ({
       const shapeElement = svgRef.current.querySelector(`[data-piece-index="${shapeIndex}"]`);
       if (!shapeElement) return;
       
-      // Get the bounding box in the shape's coordinate system
       const bbox = shapeElement.getBBox();
-      
-      // Get the cumulative transform matrix to handle nested transforms
-      const ctm = shapeElement.getCTM();
-      let transformedBBox = bbox;
-      
-      // If there's a transform, we need to transform the bounding box
-      if (ctm) {
-        // Transform the four corners of the bbox
-        const corners = [
-          { x: bbox.x, y: bbox.y },
-          { x: bbox.x + bbox.width, y: bbox.y },
-          { x: bbox.x + bbox.width, y: bbox.y + bbox.height },
-          { x: bbox.x, y: bbox.y + bbox.height }
-        ];
-        
-        const transformedCorners = corners.map(corner => {
-          const pt = svgRef.current.createSVGPoint();
-          pt.x = corner.x;
-          pt.y = corner.y;
-          const transformedPt = pt.matrixTransform(ctm);
-          return { x: transformedPt.x, y: transformedPt.y };
-        });
-        
-        // Find the bounding box of the transformed corners
-        const xs = transformedCorners.map(c => c.x);
-        const ys = transformedCorners.map(c => c.y);
-        
-        transformedBBox = {
-          x: Math.min(...xs),
-          y: Math.min(...ys),
-          width: Math.max(...xs) - Math.min(...xs),
-          height: Math.max(...ys) - Math.min(...ys)
-        };
-      }
       
       // Create clip path from shape
       const clipPath = document.createElementNS('http://www.w3.org/2000/svg', 'clipPath');
@@ -236,24 +200,9 @@ const DesignCanvas = ({
       clipShape.removeAttribute('data-piece-index');
       clipShape.removeAttribute('style');
       
-      // If the shape has a transform, we need to handle it properly
-      // Check if shape is within a transformed group
-      let parent = shapeElement.parentNode;
-      let transforms = [];
-      while (parent && parent !== svgRef.current) {
-        if (parent.hasAttribute('transform')) {
-          transforms.unshift(parent.getAttribute('transform'));
-        }
-        parent = parent.parentNode;
-      }
-      
-      // Apply accumulated transforms to the clip shape
-      if (transforms.length > 0 || shapeElement.hasAttribute('transform')) {
-        const allTransforms = [...transforms];
-        if (shapeElement.hasAttribute('transform')) {
-          allTransforms.push(shapeElement.getAttribute('transform'));
-        }
-        clipShape.setAttribute('transform', allTransforms.join(' '));
+      // If shape has transforms, we need to apply them to the clip path shape
+      if (shapeElement.hasAttribute('transform')) {
+        clipShape.setAttribute('transform', shapeElement.getAttribute('transform'));
       }
       
       clipPath.appendChild(clipShape);
@@ -269,13 +218,12 @@ const DesignCanvas = ({
         const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
         image.setAttribute('href', application.glassData.imageData || application.glassData.imageUrl);
         
-        // Calculate the diagonal of the bounding box to ensure coverage at any rotation
-        const diagonal = Math.sqrt(transformedBBox.width * transformedBBox.width + transformedBBox.height * transformedBBox.height);
-        
-        // Make the image square with size equal to diagonal to ensure full coverage
-        const size = diagonal * 1.2; // 20% extra for safety
-        const centerX = transformedBBox.x + transformedBBox.width / 2;
-        const centerY = transformedBBox.y + transformedBBox.height / 2;
+        // Calculate size based on shape's bounding box
+        // Use a multiplier that shows more of the texture pattern
+        const sizeMultiplier = 1.5; // Show more texture by using smaller multiplier
+        const size = Math.max(bbox.width, bbox.height) * sizeMultiplier;
+        const centerX = bbox.x + bbox.width / 2;
+        const centerY = bbox.y + bbox.height / 2;
         const x = centerX - size / 2;
         const y = centerY - size / 2;
         
@@ -296,10 +244,10 @@ const DesignCanvas = ({
       } else {
         // Create a filled rectangle for solid color glass
         const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        rect.setAttribute('x', transformedBBox.x);
-        rect.setAttribute('y', transformedBBox.y);
-        rect.setAttribute('width', transformedBBox.width);
-        rect.setAttribute('height', transformedBBox.height);
+        rect.setAttribute('x', bbox.x);
+        rect.setAttribute('y', bbox.y);
+        rect.setAttribute('width', bbox.width);
+        rect.setAttribute('height', bbox.height);
         rect.setAttribute('fill', application.glassData.primaryColor || '#cccccc');
         rect.setAttribute('fill-opacity', '0.9');
         
@@ -340,13 +288,17 @@ const DesignCanvas = ({
         // Ensure strokes scale properly
         element.style.vectorEffect = 'non-scaling-stroke';
         
-        // Highlight selected shape with blue, others black
+        // Highlight selected shape with enhanced visual feedback
         if (selectedShapeIndex === index) {
           element.style.stroke = '#0080ff';
-          element.style.strokeWidth = '3px';
+          element.style.strokeWidth = '4px';
+          element.style.filter = 'drop-shadow(0 0 8px rgba(0, 128, 255, 0.6))';
+          element.classList.add('selected-piece');
         } else {
           element.style.stroke = '#000000';
           element.style.strokeWidth = '2px';
+          element.style.filter = '';
+          element.classList.remove('selected-piece');
         }
         
         // Ensure pointer events are always on
