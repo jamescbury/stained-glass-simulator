@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import './App.css';
 import InventoryManager from './components/GlassInventory/InventoryManager';
 import PatternManager from './components/PatternEditor/PatternManager';
+import WorkspaceManager from './components/DesignWorkspace/WorkspaceManager';
 
 function App() {
   const [activeView, setActiveView] = useState('inventory');
@@ -26,21 +27,15 @@ function App() {
           <button 
             className={`nav-btn ${activeView === 'workspace' ? 'active' : ''}`}
             onClick={() => setActiveView('workspace')}
-            disabled
           >
-            Design Workspace (Coming Soon)
+            Design Workspace
           </button>
         </nav>
       </header>
       <main>
         {activeView === 'inventory' && <InventoryManager />}
         {activeView === 'pattern' && <PatternManager />}
-        {activeView === 'workspace' && (
-          <div className="coming-soon">
-            <h2>Design Workspace</h2>
-            <p>Apply glass to patterns - Coming in Phase 3</p>
-          </div>
-        )}
+        {activeView === 'workspace' && <WorkspaceManager />}
       </main>
     </div>
   );

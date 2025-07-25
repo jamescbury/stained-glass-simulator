@@ -1,0 +1,115 @@
+/* Design Canvas Styles */
+.design-canvas {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Canvas Controls */
+.canvas-controls {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 10;
+  display: flex;
+  gap: 5px;
+  background-color: white;
+  border-radius: 6px;
+  padding: 5px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.canvas-controls button {
+  min-width: 36px;
+  height: 36px;
+  border: none;
+  background-color: white;
+  color: #333;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8px;
+}
+
+.canvas-controls button:hover {
+  background-color: #f0f0f0;
+}
+
+.canvas-controls .zoom-level {
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  font-size: 14px;
+  color: #666;
+  border-left: 1px solid #ddd;
+}
+
+/* Canvas Viewport */
+.canvas-viewport {
+  flex: 1;
+  overflow: hidden;
+  cursor: grab;
+  position: relative;
+  background-color: #f0f0f0;
+  background-image: 
+    linear-gradient(45deg, #e0e0e0 25%, transparent 25%),
+    linear-gradient(-45deg, #e0e0e0 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #e0e0e0 75%),
+    linear-gradient(-45deg, transparent 75%, #e0e0e0 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+}
+
+.canvas-viewport.panning {
+  cursor: grabbing;
+}
+
+.svg-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transition: transform 0.1s ease-out;
+}
+
+.svg-content-wrapper {
+  position: relative;
+}
+
+.svg-content-wrapper svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+
+/* Glass Applied Shapes */
+.svg-container [data-piece-index] {
+  transition: all 0.2s;
+}
+
+.svg-container [data-piece-index]:hover {
+  filter: brightness(1.1) drop-shadow(0 0 4px rgba(0, 0, 0, 0.3));
+}
+
+/* Selected piece animation */
+.svg-container [data-piece-index].selected-piece {
+  animation: pulse-selection 2s ease-in-out infinite;
+}
+
+@keyframes pulse-selection {
+  0%, 100% {
+    stroke-width: 4px;
+    filter: drop-shadow(0 0 8px rgba(0, 128, 255, 0.6));
+  }
+  50% {
+    stroke-width: 5px;
+    filter: drop-shadow(0 0 12px rgba(0, 128, 255, 0.8));
+  }
+}
