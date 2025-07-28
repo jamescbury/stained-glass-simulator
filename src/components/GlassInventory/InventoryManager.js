@@ -43,7 +43,6 @@ const InventoryManager = () => {
   const [filterTexture, setFilterTexture] = useState('all');
   const [filterColor, setFilterColor] = useState('all');
   const [isLoading, setIsLoading] = useState(true);
-  const [allTags, setAllTags] = useState([]);
   const [allColors, setAllColors] = useState([]);
   const [customTextures, setCustomTextures] = useState([]);
 
@@ -61,13 +60,6 @@ const InventoryManager = () => {
     try {
       const items = await glassStorage.getAllGlass();
       setGlassItems(items);
-      
-      // Extract all unique tags
-      const tags = new Set();
-      items.forEach(item => {
-        item.tags.forEach(tag => tags.add(tag));
-      });
-      setAllTags(Array.from(tags).sort());
       
       // Extract all unique colors
       const colorsMap = new Map();
