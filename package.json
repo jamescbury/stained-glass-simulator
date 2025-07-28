@@ -4,7 +4,6 @@
   "private": true,
   "homepage": "https://jamescbury.github.io/stained-glass-simulator",
   "dependencies": {
-    "color-thief-react": "^2.1.0",
     "d3-delaunay": "^6.0.4",
     "idb": "^8.0.3",
     "react": "^18.2.0",

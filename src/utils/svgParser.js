@@ -28,19 +28,14 @@ export function parseSVGPieces(svgContent, modifyOriginal = false) {
   // Find all shape elements, even if they're inside groups
   const shapeElements = svg.querySelectorAll('path, polygon, rect, circle, ellipse, polyline');
   
-  let skippedCount = 0;
-  
   shapeElements.forEach((element, totalIndex) => {
     // Skip elements inside defs or symbol elements
     if (element.closest('defs') || element.closest('symbol')) {
-      skippedCount++;
       return;
     }
     
     // Skip if this element is just for decoration (like borders)
-    const stroke = element.getAttribute('stroke');
-    const fill = element.getAttribute('fill');
-    const strokeWidth = parseFloat(element.getAttribute('stroke-width') || '0');
+    // Removed unused stroke, fill, and strokeWidth checks
     
     // More accurate detection of decorative elements
     const isDecorative = false; // Let's not filter anything for now

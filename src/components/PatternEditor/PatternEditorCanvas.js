@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import DesignCanvas from '../DesignWorkspace/DesignCanvas';
 import '../DesignWorkspace/DesignCanvas.css';
 import './PatternEditorCanvas.css';
@@ -138,8 +138,7 @@ const PatternEditorCanvas = ({
 
   const handlePiecesLoaded = (loadedPieces) => {
     setPieces(loadedPieces);
-    // Filter out decorative pieces for the count
-    const editablePieces = loadedPieces.filter((p, i) => !p.isDecorative && !deletedPieces.has(i));
+    // Removed unused editablePieces calculation
   };
 
   return (

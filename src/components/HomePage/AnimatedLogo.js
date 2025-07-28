@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { glassStorage } from '../../services/glassStorage';
 import './AnimatedLogo.css';
 
@@ -121,8 +121,9 @@ const AnimatedLogo = () => {
 
     // Cleanup
     return () => {
-      if (animationRef.current.timeoutId) {
-        clearTimeout(animationRef.current.timeoutId);
+      const timeoutId = animationRef.current.timeoutId;
+      if (timeoutId) {
+        clearTimeout(timeoutId);
       }
     };
   }, []);
@@ -137,6 +138,7 @@ const AnimatedLogo = () => {
         startAnimation();
       }, 3000);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [svgLoaded, glassInventory]);
 
   const applyInitialGlassFills = async () => {
@@ -228,7 +230,6 @@ const AnimatedLogo = () => {
       }
 
       // Check if this shape should be lighter (it's the value in the map)
-      const isDarkerShape = Object.keys(darkerToLighterMap).includes(String(shapeIndex));
       const isLighterShape = Object.values(darkerToLighterMap).includes(shapeIndex);
       
       if (isLighterShape) {

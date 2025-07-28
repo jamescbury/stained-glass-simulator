@@ -269,9 +269,7 @@ const DesignCanvas = ({
       // Check if this shape has no fill (stroke-only)
       const fillAttr = shapeElement.getAttribute('fill');
       const styleAttr = shapeElement.getAttribute('style');
-      const hasStrokeOnly = shapeElement.style.fill === 'none' || 
-                           fillAttr === 'none' ||
-                           (styleAttr && styleAttr.includes('fill:none'));
+      // Removed unused hasStrokeOnly check
       
       // Create clip path from shape
       const clipPath = document.createElementNS('http://www.w3.org/2000/svg', 'clipPath');

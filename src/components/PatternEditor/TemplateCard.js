@@ -10,32 +10,6 @@ const TemplateCard = ({ template, onEdit, onDelete, isSelected }) => {
     });
   };
 
-  // Create a data URL for the SVG preview
-  const getSvgPreview = () => {
-    if (!template.svgContent) return null;
-    
-    // Parse the SVG to get viewBox dimensions
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(template.svgContent, 'image/svg+xml');
-    const svgElement = doc.querySelector('svg');
-    
-    if (svgElement) {
-      // Ensure the SVG has proper dimensions for preview
-      svgElement.setAttribute('width', '100%');
-      svgElement.setAttribute('height', '100%');
-      
-      // Convert back to string
-      const serializer = new XMLSerializer();
-      const svgString = serializer.serializeToString(svgElement);
-      
-      // Create data URL
-      const blob = new Blob([svgString], { type: 'image/svg+xml' });
-      return URL.createObjectURL(blob);
-    }
-    
-    return null;
-  };
-
   return (
     <div 
       className={`template-card ${isSelected ? 'selected' : ''}`}
