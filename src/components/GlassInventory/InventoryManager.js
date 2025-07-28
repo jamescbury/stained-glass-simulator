@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { glassStorage, detectGlassTexture, extractColorFromFilename, GLASS_TEXTURES } from '../../services/glassStorage';
-import { analyzeImageColors, detectGlassProperties } from '../../utils/colorDetection';
+import { analyzeImageColors, detectGlassProperties, getColorName } from '../../utils/colorDetection';
 import GlassUploader from './GlassUploader';
 import GlassCoverflow from './GlassCoverflow';
 import GlassEditor from './GlassEditor';
@@ -41,9 +41,10 @@ const InventoryManager = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterTexture, setFilterTexture] = useState('all');
-  const [filterTag, setFilterTag] = useState('all');
+  const [filterColor, setFilterColor] = useState('all');
   const [isLoading, setIsLoading] = useState(true);
   const [allTags, setAllTags] = useState([]);
+  const [allColors, setAllColors] = useState([]);
   const [customTextures, setCustomTextures] = useState([]);
 
   // Load glass items and initial samples on mount
@@ -67,6 +68,21 @@ const InventoryManager = () => {
         item.tags.forEach(tag => tags.add(tag));
       });
       setAllTags(Array.from(tags).sort());
+      
+      // Extract all unique colors
+      const colorsMap = new Map();
+      items.forEach(item => {
+        if (item.primaryColor) {
+          const colorName = getColorName(item.primaryColor);
+          if (!colorsMap.has(colorName)) {
+            colorsMap.set(colorName, item.primaryColor);
+          }
+        }
+      });
+      // Sort colors by name
+      const sortedColors = Array.from(colorsMap.entries())
+        .sort((a, b) => a[0].localeCompare(b[0]));
+      setAllColors(sortedColors);
       
       // Extract all custom textures
       const customTextureSet = new Set();
@@ -289,9 +305,15 @@ const InventoryManager = () => {
       }
     }
     
-    // Tag filter
-    if (filterTag !== 'all' && !glass.tags.includes(filterTag)) {
-      return false;
+    // Color filter
+    if (filterColor !== 'all') {
+      if (!glass.primaryColor) {
+        return false;
+      }
+      const glassColorName = getColorName(glass.primaryColor);
+      if (glassColorName !== filterColor) {
+        return false;
+      }
     }
     
     return true;
@@ -384,16 +406,28 @@ const InventoryManager = () => {
 
             <div className="filter-group">
               <label className="filter-label">Glass Colors</label>
-              <select 
-                value={filterTag} 
-                onChange={(e) => setFilterTag(e.target.value)}
-                className="filter-select"
-              >
-                <option value="all">All Colors</option>
-                {allTags.map(tag => (
-                  <option key={tag} value={tag}>{tag}</option>
-                ))}
-              </select>
+              <div className="color-filter-wrapper">
+                <select 
+                  value={filterColor} 
+                  onChange={(e) => setFilterColor(e.target.value)}
+                  className="filter-select color-filter-select"
+                >
+                  <option value="all">All Colors</option>
+                  {allColors.map(([colorName, colorHex]) => (
+                    <option key={colorName} value={colorName} data-color={colorHex}>
+                      {colorName}
+                    </option>
+                  ))}
+                </select>
+                {filterColor !== 'all' && (
+                  <span 
+                    className="color-indicator" 
+                    style={{ 
+                      backgroundColor: allColors.find(([name]) => name === filterColor)?.[1] || '#ccc' 
+                    }}
+                  />
+                )}
+              </div>
             </div>
           </div>
         </div>
