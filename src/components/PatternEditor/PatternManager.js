@@ -13,6 +13,10 @@ const PatternManager = () => {
   const [viewMode, setViewMode] = useState('gallery'); // 'gallery' or 'viewer'
   const [loadingMessage, setLoadingMessage] = useState('Loading patterns...');
   const [isResetting, setIsResetting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterTexture, setFilterTexture] = useState('all');
+  const [filterColor, setFilterColor] = useState('all');
+  const [maxPieces, setMaxPieces] = useState('all');
 
   useEffect(() => {
     loadPatterns();
@@ -159,52 +163,144 @@ const PatternManager = () => {
     }
   };
 
+  // Filter patterns based on search and filters
+  const filteredPatterns = patterns.filter(pattern => {
+    // Search filter
+    if (searchQuery && !pattern.name.toLowerCase().includes(searchQuery.toLowerCase())) {
+      return false;
+    }
+    
+    // Max pieces filter
+    if (maxPieces !== 'all') {
+      const pieces = pattern.pieceCount || 0;
+      if (maxPieces === '<50' && pieces >= 50) return false;
+      // Add more filters as needed
+    }
+    
+    return true;
+  });
+
   return (
     <div className="pattern-manager">
-      <div className="pattern-header">
-        <h2>Template Editor</h2>
-        <div className="header-actions">
-          {viewMode === 'viewer' && (
-            <button 
-              className="back-to-gallery-btn"
-              onClick={handleBackToGallery}
-            >
-              ← Back to Gallery
-            </button>
-          )}
-          {viewMode === 'gallery' && patterns.length > 0 && (
-            <button 
-              className="reset-all-btn"
-              onClick={handleResetAllPatterns}
-              title="Reset all templates to defaults"
-              disabled={isResetting}
-            >
-              {isResetting ? 'Resetting...' : '↻ Reset to Defaults'}
-            </button>
-          )}
-        </div>
-      </div>
-
       {viewMode === 'gallery' ? (
         <>
-          <PatternUploader onUpload={handleUpload} />
-          
-          {isLoading ? (
-            <div className="loading">{loadingMessage}</div>
-          ) : (
-            <PatternGallery
-              patterns={patterns}
-              onSelectPattern={handleSelectPattern}
-              onDeletePattern={handleDeletePattern}
-            />
-          )}
+          <div className="pattern-main">
+            <div className="pattern-header">
+              <h2>Templates and Patterns</h2>
+              <div className="pattern-subtitle">
+                {patterns.length} templates in your collection
+              </div>
+            </div>
+
+            <PatternUploader onUpload={handleUpload} />
+            
+            {isLoading ? (
+              <div className="loading">{loadingMessage}</div>
+            ) : filteredPatterns.length === 0 ? (
+              <div className="empty-state">
+                <h3>No templates found</h3>
+                <p>Try adjusting your search or filters</p>
+              </div>
+            ) : (
+              <PatternGallery
+                patterns={filteredPatterns}
+                onSelectPattern={handleSelectPattern}
+                onDeletePattern={handleDeletePattern}
+              />
+            )}
+          </div>
+
+          <div className="pattern-sidebar">
+            <div className="sidebar-section">
+              <h3>Search</h3>
+              <input
+                type="text"
+                placeholder="Search Glass"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="search-input"
+              />
+              
+              <div style={{ marginTop: '1rem' }}>
+                <div className="filter-group">
+                  <label className="filter-label">All Textures</label>
+                  <select 
+                    value={filterTexture} 
+                    onChange={(e) => setFilterTexture(e.target.value)}
+                    className="filter-select"
+                  >
+                    <option value="all">All Textures</option>
+                  </select>
+                </div>
+
+                <div className="filter-group">
+                  <label className="filter-label">All Colors</label>
+                  <select 
+                    value={filterColor} 
+                    onChange={(e) => setFilterColor(e.target.value)}
+                    className="filter-select"
+                  >
+                    <option value="all">All Colors</option>
+                  </select>
+                </div>
+
+                <div className="filter-group">
+                  <label className="filter-label">Max Pieces</label>
+                  <select 
+                    value={maxPieces} 
+                    onChange={(e) => setMaxPieces(e.target.value)}
+                    className="filter-select"
+                  >
+                    <option value="all">Any</option>
+                    <option value="<50">&lt; 50 pieces</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div className="sidebar-section">
+              <h3>Controls</h3>
+              <div className="action-buttons">
+                <button 
+                  onClick={() => {
+                    const dataStr = JSON.stringify(patterns, null, 2);
+                    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+                    const linkElement = document.createElement('a');
+                    linkElement.setAttribute('href', dataUri);
+                    linkElement.setAttribute('download', `templates-${new Date().toISOString().split('T')[0]}.json`);
+                    linkElement.click();
+                  }}
+                  className="export-button"
+                >
+                  Export
+                </button>
+                <button 
+                  onClick={() => {
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = '.svg';
+                    input.onchange = (e) => {
+                      const file = e.target.files[0];
+                      if (file) handleUpload(file);
+                    };
+                    input.click();
+                  }}
+                  className="import-button"
+                >
+                  Import
+                </button>
+              </div>
+            </div>
+          </div>
         </>
       ) : (
-        <PatternEditorCanvas
-          pattern={selectedPattern}
-          onBack={handleBackToGallery}
-          onPatternModified={handlePatternModified}
-        />
+        <div className="pattern-editor-modal">
+          <PatternEditorCanvas
+            pattern={selectedPattern}
+            onBack={handleBackToGallery}
+            onPatternModified={handlePatternModified}
+          />
+        </div>
       )}
     </div>
   );

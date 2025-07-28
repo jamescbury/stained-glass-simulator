@@ -3,7 +3,7 @@
   display: flex;
   flex-direction: column;
   height: calc(100vh - 80px);
-  background-color: #f5f5f5;
+  background-color: var(--bg);
 }
 
 /* Header */
@@ -11,10 +11,9 @@
   display: flex;
   align-items: center;
   gap: 20px;
-  padding: 15px 20px;
+  padding: 1rem 2rem;
   background-color: white;
-  border-bottom: 1px solid #ddd;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .template-selector {
@@ -25,17 +24,18 @@
 
 .template-selector label {
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
+  font-family: var(--font-body);
 }
 
 .template-selector select {
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-  background-color: white;
-  cursor: pointer;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid var(--input-border);
+  border-radius: 6px;
+  background-color: var(--input-bg);
   min-width: 200px;
+  font-family: var(--font-body);
 }
 
 .project-name {
@@ -45,22 +45,50 @@
 }
 
 .project-name input {
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 16px;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--input-border);
+  border-radius: 6px;
+  font-size: 1rem;
   font-weight: 500;
   width: 300px;
   text-align: center;
+  background-color: var(--input-bg);
+  font-family: var(--font-body);
 }
 
+/* Action Buttons */
+.workspace-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.export-button,
+.controls-button {
+  padding: 0.6rem 1.2rem;
+  background-color: var(--button-bg);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.export-button:hover,
+.controls-button:hover {
+  background-color: var(--button-hover);
+}
 
 /* Main Content Area */
 .workspace-content {
   flex: 1;
   position: relative;
   overflow: hidden;
-  background-color: #e0e0e0;
+  background-color: #f0f0f0;
 }
 
 /* Empty State */
@@ -69,14 +97,15 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: calc(100vh - 80px);
+  height: 100%;
   text-align: center;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .empty-workspace h2 {
   margin-bottom: 10px;
-  color: #333;
+  color: var(--text-primary);
+  font-family: var(--font-heading);
 }
 
 /* Loading State */
@@ -84,9 +113,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: calc(100vh - 80px);
-  font-size: 18px;
-  color: #666;
+  height: 100%;
+  font-size: 1.1rem;
+  color: var(--text-secondary);
 }
 
 /* Responsive Design */

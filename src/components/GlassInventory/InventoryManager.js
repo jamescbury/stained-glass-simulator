@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { glassStorage, detectGlassTexture, extractColorFromFilename, GLASS_TEXTURES } from '../../services/glassStorage';
 import { analyzeImageColors, detectGlassProperties } from '../../utils/colorDetection';
 import GlassUploader from './GlassUploader';
-import GlassCard from './GlassCard';
+import GlassCoverflow from './GlassCoverflow';
 import GlassEditor from './GlassEditor';
 import './GlassInventory.css';
 import '../../utils/resetDatabase'; // Import to add resetGlassDB to window
@@ -207,6 +207,57 @@ const InventoryManager = () => {
     }
   };
 
+  // Export inventory
+  const exportInventory = () => {
+    const dataStr = JSON.stringify(glassItems, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    
+    const exportFileDefaultName = `glass-inventory-${new Date().toISOString().split('T')[0]}.json`;
+    
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+  };
+  
+  // Import inventory
+  const importInventory = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const importedGlass = JSON.parse(e.target.result);
+        
+        if (!Array.isArray(importedGlass)) {
+          throw new Error('Invalid inventory format');
+        }
+        
+        // Add each glass item
+        for (const glass of importedGlass) {
+          // Skip if already exists (by name)
+          const exists = glassItems.some(g => g.name === glass.name);
+          if (!exists) {
+            await glassStorage.addGlass({
+              ...glass,
+              id: undefined, // Let storage assign new ID
+              addedAt: new Date().toISOString()
+            });
+          }
+        }
+        
+        // Reload
+        await loadGlassItems();
+        alert(`Imported ${importedGlass.length} glass items!`);
+      } catch (error) {
+        console.error('Import error:', error);
+        alert('Failed to import inventory. Please check the file format.');
+      }
+    };
+    reader.readAsText(file);
+  };
+
   // Filter glass items based on search and filters
   const filteredGlass = glassItems.filter(glass => {
     // Search filter
@@ -236,111 +287,141 @@ const InventoryManager = () => {
 
   return (
     <div className="inventory-manager">
-      <div className="inventory-header">
-        <h2>Glass Inventory</h2>
-        <div className="inventory-stats">
-          {glassItems.length} pieces in collection
-          <button 
-            onClick={() => {
-              if (window.confirm('Clear all glass inventory and reload samples?')) {
-                window.resetGlassDB();
-              }
-            }}
-            style={{
-              marginLeft: '20px',
-              padding: '5px 10px',
-              fontSize: '0.9rem',
-              background: '#f44336',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}
-          >
-            Reset Database
-          </button>
+      <div className="inventory-main">
+        <div className="inventory-header">
+          <h2>Glass Inventory</h2>
+          <div className="inventory-stats">
+            {glassItems.length} pieces in your collection
+          </div>
         </div>
+
+        {isLoading ? (
+          <div className="loading">Loading glass inventory...</div>
+        ) : filteredGlass.length === 0 ? (
+          <div className="empty-state">
+            <h3>No glass found</h3>
+            <p>Try adjusting your search or filters</p>
+          </div>
+        ) : (
+          <GlassCoverflow
+            glassItems={filteredGlass}
+            onGlassSelect={setSelectedGlass}
+            selectedGlass={selectedGlass}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
+        )}
       </div>
 
-      <div className="inventory-controls">
-        <div className="search-bar">
+      <div className="inventory-sidebar">
+        <div className="sidebar-section">
+          <h3>Add Inventory</h3>
+          <GlassUploader onUpload={handleUpload} customTextures={customTextures} />
+          <div style={{ marginTop: '1rem' }}>
+            <label className="import-json-button" style={{ cursor: 'pointer', display: 'block' }}>
+              Import from JSON
+              <input 
+                type="file" 
+                accept=".json" 
+                onChange={importInventory} 
+                style={{ display: 'none' }} 
+              />
+            </label>
+          </div>
+        </div>
+
+        <div className="sidebar-section">
+          <h3>Search</h3>
           <input
             type="text"
-            placeholder="Search glass..."
+            placeholder="Search Glass"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="search-input"
           />
+          
+          <div style={{ marginTop: '1rem' }}>
+            <div className="filter-group">
+              <label className="filter-label">Glass Texture</label>
+              <select 
+                value={filterTexture} 
+                onChange={(e) => setFilterTexture(e.target.value)}
+                className="filter-select"
+              >
+                <option value="all">All Textures</option>
+                <option value="clear">Clear</option>
+                <option value="cathedral">Cathedral</option>
+                <option value="opalescent">Opalescent</option>
+                <option value="streaky">Streaky</option>
+                <option value="wispy">Wispy</option>
+                <option value="textured">Textured</option>
+                <option value="other">Other</option>
+                <option value="custom">All Custom Textures</option>
+                {customTextures.length > 0 && (
+                  <optgroup label="Custom Textures">
+                    {customTextures.map(customTexture => (
+                      <option key={`custom:${customTexture}`} value={`custom:${customTexture}`}>
+                        {customTexture}
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
+              </select>
+            </div>
+
+            <div className="filter-group">
+              <label className="filter-label">Glass Colors</label>
+              <select 
+                value={filterTag} 
+                onChange={(e) => setFilterTag(e.target.value)}
+                className="filter-select"
+              >
+                <option value="all">All Colors</option>
+                {allTags.map(tag => (
+                  <option key={tag} value={tag}>{tag}</option>
+                ))}
+              </select>
+            </div>
+          </div>
         </div>
 
-        <div className="filters">
-          <select 
-            value={filterTexture} 
-            onChange={(e) => setFilterTexture(e.target.value)}
-            className="filter-select"
-          >
-            <option value="all">All Textures</option>
-            <option value="clear">Clear</option>
-            <option value="cathedral">Cathedral</option>
-            <option value="opalescent">Opalescent</option>
-            <option value="streaky">Streaky</option>
-            <option value="wispy">Wispy</option>
-            <option value="textured">Textured</option>
-            <option value="other">Other</option>
-            <option value="custom">All Custom Textures</option>
-            {customTextures.length > 0 && (
-              <optgroup label="Custom Textures">
-                {customTextures.map(customTexture => (
-                  <option key={`custom:${customTexture}`} value={`custom:${customTexture}`}>
-                    {customTexture}
-                  </option>
-                ))}
-              </optgroup>
-            )}
-          </select>
-
-          <select 
-            value={filterTag} 
-            onChange={(e) => setFilterTag(e.target.value)}
-            className="filter-select"
-          >
-            <option value="all">All Tags</option>
-            {allTags.map(tag => (
-              <option key={tag} value={tag}>{tag}</option>
-            ))}
-          </select>
+        <div className="sidebar-section">
+          <h3>Controls</h3>
+          <div className="action-buttons">
+            <button 
+              onClick={exportInventory}
+              className="export-button"
+            >
+              Export
+            </button>
+            <button 
+              onClick={() => {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.json';
+                input.onchange = importInventory;
+                input.click();
+              }}
+              className="import-button"
+            >
+              Import
+            </button>
+          </div>
         </div>
       </div>
 
-      <GlassUploader onUpload={handleUpload} customTextures={customTextures} />
-
-      {isLoading ? (
-        <div className="loading">Loading glass inventory...</div>
-      ) : (
-        <div className="glass-grid">
-          {filteredGlass.map(glass => (
-            <GlassCard
-              key={glass.id}
-              glass={glass}
-              onEdit={() => handleEdit(glass)}
-              onDelete={() => handleDelete(glass.id)}
-              onSelect={() => setSelectedGlass(glass)}
-              isSelected={selectedGlass?.id === glass.id}
-            />
-          ))}
-        </div>
-      )}
-
       {isEditing && selectedGlass && (
-        <GlassEditor
-          glass={selectedGlass}
-          customTextures={customTextures}
-          onSave={handleSaveEdit}
-          onCancel={() => {
-            setIsEditing(false);
-            setSelectedGlass(null);
-          }}
-        />
+        <div className="glass-editor-modal">
+          <GlassEditor
+            glass={selectedGlass}
+            customTextures={customTextures}
+            onSave={handleSaveEdit}
+            onCancel={() => {
+              setIsEditing(false);
+              setSelectedGlass(null);
+            }}
+          />
+        </div>
       )}
     </div>
   );

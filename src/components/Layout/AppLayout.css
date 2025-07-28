@@ -1,0 +1,152 @@
+.app-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg);
+}
+
+/* Minimal Header */
+.app-header-minimal {
+  background: white;
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  height: 60px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.hamburger-menu {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hamburger-line {
+  width: 24px;
+  height: 2px;
+  background-color: var(--text-primary);
+  transition: all 0.3s ease;
+}
+
+.hamburger-menu:hover .hamburger-line {
+  background-color: var(--accent);
+}
+
+.app-title {
+  font-family: var(--font-heading);
+  font-size: 1.75rem;
+  color: var(--text-primary);
+  margin: 0;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.app-title:hover {
+  opacity: 0.8;
+}
+
+/* Side Navigation */
+.nav-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 200;
+}
+
+.nav-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.side-nav {
+  position: fixed;
+  top: 0;
+  left: -300px;
+  width: 280px;
+  height: 100vh;
+  background: white;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  transition: left 0.3s ease;
+  z-index: 300;
+  overflow-y: auto;
+}
+
+.side-nav.open {
+  left: 0;
+}
+
+.nav-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-header h2 {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.close-menu {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  color: var(--text-secondary);
+  line-height: 1;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-menu:hover {
+  color: var(--text-primary);
+}
+
+.nav-link {
+  display: block;
+  padding: 1rem 1.5rem;
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: 1.1rem;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.nav-link:hover {
+  background-color: var(--bg);
+  padding-left: 2rem;
+}
+
+.nav-link.active {
+  background-color: var(--accent);
+  color: white;
+}
+
+/* Main Content */
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 60px);
+}

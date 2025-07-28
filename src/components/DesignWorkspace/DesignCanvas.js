@@ -117,33 +117,94 @@ const DesignCanvas = ({
             svg.style.height = '100%';
             
             // Add click handlers to pieces
+            console.log(`DesignCanvas: Setting up click handlers for ${result.pieces.length} pieces`);
             result.pieces.forEach((piece, index) => {
               if (!piece.isDecorative) {
                 const element = svg.querySelector(`[data-piece-index="${index}"]`);
                 if (element) {
+                  // Check if shape contains arc commands
+                  const pathData = element.getAttribute('d');
+                  const hasArcs = pathData && pathData.includes(' a ');
+                  
+                  if (hasArcs) {
+                    console.log(`Shape ${element.id} at index ${index} contains arc commands`);
+                    
+                    // Ensure these shapes have proper fill-opacity
+                    const currentStyle = element.getAttribute('style') || '';
+                    if (!currentStyle.includes('fill-opacity')) {
+                      element.setAttribute('style', currentStyle + ';fill-opacity:1');
+                      console.log(`Added fill-opacity to arc shape ${element.id}`);
+                    }
+                    
+                    // Log the bounding box to see if it's calculated correctly
+                    try {
+                      const bbox = element.getBBox();
+                      console.log(`BBox for arc shape ${element.id}:`, bbox);
+                    } catch (e) {
+                      console.error(`Failed to get bbox for arc shape ${element.id}:`, e);
+                    }
+                  }
                   // Visibility will be handled by separate effect
                   
                   // Store original fill if not already stored
                   if (!element.hasAttribute('data-original-fill')) {
-                    element.setAttribute('data-original-fill', element.getAttribute('fill') || 'none');
+                    const fillAttr = element.getAttribute('fill');
+                    const styleAttr = element.getAttribute('style');
+                    let originalFill = fillAttr || 'none';
+                    
+                    // Check for fill in style attribute
+                    if (!fillAttr && styleAttr) {
+                      const fillMatch = styleAttr.match(/fill:\s*([^;]+)/);
+                      if (fillMatch) {
+                        originalFill = fillMatch[1].trim();
+                      }
+                    }
+                    
+                    element.setAttribute('data-original-fill', originalFill);
                   }
                   
                   element.style.cursor = 'pointer';
                   element.style.pointerEvents = 'all';
                   element.style.vectorEffect = 'non-scaling-stroke';
+                  element.style.zIndex = '10'; // Ensure shape is clickable
                   
                   // Ensure fill is visible for clicking
-                  if (!element.getAttribute('fill') || element.getAttribute('fill') === 'none') {
+                  const fillAttr = element.getAttribute('fill');
+                  const styleAttr = element.getAttribute('style');
+                  const hasFillInStyle = styleAttr && styleAttr.includes('fill:') && !styleAttr.includes('fill:none');
+                  
+                  if ((!fillAttr || fillAttr === 'none') && !hasFillInStyle) {
                     element.setAttribute('fill', 'transparent');
                   }
                   
                   // Set initial stroke to black
-                  element.style.stroke = '#000000';
-                  element.style.strokeWidth = '2px';
-                  element.addEventListener('click', (e) => {
+                  // Use setAttribute to ensure it overrides inline styles
+                  element.setAttribute('stroke', '#000000');
+                  element.setAttribute('stroke-width', '2px');
+                  const clickHandler = (e) => {
                     e.stopPropagation();
+                    e.preventDefault();
+                    console.log(`Shape clicked: index ${index}, id ${element.id}, piece-index ${element.getAttribute('data-piece-index')}`);
+                    
+                    // Debug: highlight the actual clicked shape
+                    element.style.fill = 'red';
+                    element.style.fillOpacity = '1'; // Ensure it's visible
+                    setTimeout(() => {
+                      const originalFill = element.getAttribute('data-original-fill');
+                      if (!originalFill || originalFill === 'none') {
+                        element.setAttribute('fill', 'transparent');
+                      } else {
+                        element.setAttribute('fill', originalFill);
+                      }
+                      element.style.fillOpacity = ''; // Reset
+                    }, 500);
+                    
                     onShapeSelectRef.current(index);
-                  });
+                  };
+                  
+                  // Add multiple event listeners to ensure clicks are captured
+                  element.addEventListener('click', clickHandler, true);
+                  element.addEventListener('mousedown', clickHandler, true);
                 }
               }
             });
@@ -196,10 +257,21 @@ const DesignCanvas = ({
       
       const bbox = shapeElement.getBBox();
       
+      // Debug problematic shapes
+      if (shapeElement.id === 'path85' || shapeElement.id === 'path86' || shapeElement.id === 'path80') {
+        console.log(`Creating glass for problematic shape ${shapeElement.id}:`, {
+          bbox,
+          shapeIndex,
+          style: shapeElement.getAttribute('style')
+        });
+      }
+      
       // Check if this shape has no fill (stroke-only)
+      const fillAttr = shapeElement.getAttribute('fill');
+      const styleAttr = shapeElement.getAttribute('style');
       const hasStrokeOnly = shapeElement.style.fill === 'none' || 
-                           shapeElement.getAttribute('fill') === 'none' ||
-                           (shapeElement.getAttribute('style') && shapeElement.getAttribute('style').includes('fill:none'));
+                           fillAttr === 'none' ||
+                           (styleAttr && styleAttr.includes('fill:none'));
       
       // Create clip path from shape
       const clipPath = document.createElementNS('http://www.w3.org/2000/svg', 'clipPath');
@@ -213,7 +285,14 @@ const DesignCanvas = ({
       
       if (tagName === 'path') {
         clipShape = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        clipShape.setAttribute('d', shapeElement.getAttribute('d'));
+        let pathData = shapeElement.getAttribute('d');
+        
+        // Check if path contains arc segments
+        if (pathData && pathData.includes(' a ')) {
+          console.log(`Path ${shapeElement.id} contains arc segments`);
+        }
+        
+        clipShape.setAttribute('d', pathData);
       } else if (tagName === 'polygon') {
         clipShape = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
         clipShape.setAttribute('points', shapeElement.getAttribute('points'));
@@ -244,9 +323,21 @@ const DesignCanvas = ({
       clipShape.setAttribute('stroke', 'none');
       
       // Set fill-rule to ensure proper filling
-      // If the original has fill-rule, preserve it; otherwise use nonzero
-      if (shapeElement.hasAttribute('fill-rule')) {
-        clipShape.setAttribute('fill-rule', shapeElement.getAttribute('fill-rule'));
+      // Check both attribute and style for fill-rule
+      let fillRule = shapeElement.getAttribute('fill-rule');
+      if (!fillRule) {
+        const style = shapeElement.getAttribute('style');
+        if (style) {
+          const fillRuleMatch = style.match(/fill-rule:\s*([^;]+)/);
+          if (fillRuleMatch) {
+            fillRule = fillRuleMatch[1].trim();
+          }
+        }
+      }
+      
+      if (fillRule) {
+        clipShape.setAttribute('fill-rule', fillRule);
+        console.log(`Preserving fill-rule: ${fillRule} for ${shapeElement.id}`);
       } else {
         clipShape.setAttribute('fill-rule', 'nonzero');
       }
@@ -348,13 +439,14 @@ const DesignCanvas = ({
         
         // Highlight selected shape with enhanced visual feedback
         if (selectedShapeIndex === index) {
-          element.style.stroke = '#0080ff';
-          element.style.strokeWidth = '4px';
+          // Use setAttribute to override inline styles
+          element.setAttribute('stroke', '#0080ff');
+          element.setAttribute('stroke-width', '4px');
           element.style.filter = 'drop-shadow(0 0 8px rgba(0, 128, 255, 0.6))';
           element.classList.add('selected-piece');
         } else {
-          element.style.stroke = '#000000';
-          element.style.strokeWidth = '2px';
+          element.setAttribute('stroke', '#000000');
+          element.setAttribute('stroke-width', '2px');
           element.style.filter = '';
           element.classList.remove('selected-piece');
         }

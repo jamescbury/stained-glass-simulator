@@ -122,10 +122,7 @@ const GlassUploader = ({ onUpload, customTextures = [] }) => {
         >
           <input {...getInputProps()} />
           <div className="dropzone-content">
-            <div className="upload-icon">📷</div>
-            <p>Drag & drop glass photo here</p>
-            <p className="small">or click to select file</p>
-            <p className="formats">Supports: JPG, PNG, WebP</p>
+            <p className="upload-text">Drop image here or click to upload</p>
           </div>
         </div>
       ) : (

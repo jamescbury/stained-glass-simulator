@@ -13,12 +13,9 @@
     --highlight: #f4e5b5;
 
     /* Font Stack */
-    --font-heading: "Poppins", sans-serif;
-    --font-body: "Poppins", sans-serif;
+    --font-heading: "Playfair Display", serif;
+    --font-body: "Inter", sans-serif;
 }
-
-/* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
 /* Body & General Layout */
 body {
@@ -31,88 +28,55 @@ body {
     line-height: 1.5;
 }
 
-.App {
-  min-height: 100vh;
-  background-color: var(--bg);
-  display: flex;
-  flex-direction: column;
+header,
+footer {
+    padding: 1rem 2rem;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
 }
 
-.App-header {
-  background: white;
-  border-bottom: 1px solid var(--border-color);
-  padding: 1rem 2rem;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.App-header h1 {
-  margin: 0 0 0.5rem 0;
-  font-family: var(--font-heading);
-  font-size: 2rem;
-  color: var(--text-primary);
-  text-align: center;
-}
-
-.brand-link {
-  text-decoration: none;
-  color: inherit;
-}
-
-.brand-link:hover {
-  opacity: 0.8;
-}
-
-.app-nav {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.nav-btn {
-  padding: 0.6rem 1.2rem;
-  background-color: var(--button-bg);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  text-decoration: none;
-  display: inline-block;
-}
-
-.nav-btn:hover {
-  background-color: var(--button-hover);
-}
-
-.nav-btn.active {
-  background-color: var(--accent);
-}
-
-main {
-  flex: 1;
-  overflow-y: auto;
-  padding: 2rem;
+footer {
+    border-top: 1px solid var(--border-color);
 }
 
 /* Typography */
-h1, h2, h3 {
+h1,
+h2,
+h3 {
     font-family: var(--font-heading);
     font-weight: 600;
     color: var(--text-primary);
     margin-bottom: 0.5em;
 }
 
+h1 {
+    font-size: 2rem;
+}
+
 h2 {
     font-size: 1.5rem;
 }
 
+/* Logo & Tagline */
+.logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    margin: 3rem auto;
+    flex-wrap: wrap;
+}
+
+.tagline {
+    font-style: italic;
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+}
+
 /* Buttons */
-button, .button {
+button,
+.button {
     background-color: var(--button-bg);
     color: white;
     border: none;
@@ -124,13 +88,21 @@ button, .button {
     transition: background-color 0.2s ease;
 }
 
-button:hover, .button:hover {
+button:hover,
+.button:hover {
     background-color: var(--button-hover);
+}
+
+.button-group {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 1rem;
 }
 
 /* Inputs & Dropdowns */
 input[type="text"],
-input[type="number"],
 select {
     padding: 0.5rem;
     font-size: 1rem;
@@ -139,13 +111,13 @@ select {
     background-color: var(--input-bg);
     width: 100%;
     box-sizing: border-box;
-    font-family: var(--font-body);
 }
 
 /* Layout: Workspace, Inventory, Templates */
 .main-layout {
     display: flex;
     gap: 2rem;
+    padding: 2rem;
     max-width: 1200px;
     margin: 0 auto;
 }
@@ -177,4 +149,32 @@ select {
     margin-top: 0;
     font-size: 1rem;
     color: var(--text-secondary);
+}
+
+/* Inventory Grid */
+.glass-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+    gap: 0.5rem;
+}
+
+.glass-tile {
+    border: 1px solid var(--input-border);
+    border-radius: 6px;
+    overflow: hidden;
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+}
+
+/* Claude Code Footer Badge */
+footer .claude-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+footer .claude-logo img {
+    width: 20px;
+    height: 20px;
 }

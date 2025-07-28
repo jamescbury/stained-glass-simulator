@@ -1,0 +1,194 @@
+/* Glass Coverflow Styles */
+.glass-coverflow {
+  width: 100%;
+  height: 600px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.05));
+  border-radius: 10px;
+  padding: 2rem 0;
+  overflow: hidden;
+}
+
+.coverflow-container {
+  width: 100%;
+  height: 500px;
+  position: relative;
+  perspective: 1200px;
+  cursor: grab;
+  user-select: none;
+}
+
+.coverflow-container:active {
+  cursor: grabbing;
+}
+
+.coverflow-track {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-style: preserve-3d;
+}
+
+.coverflow-item {
+  position: absolute;
+  width: 360px;
+  transition: all 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+}
+
+.coverflow-item.active {
+  cursor: pointer;
+}
+
+.coverflow-item:not(.active) {
+  cursor: pointer;
+}
+
+/* Glass card adjustments for coverflow */
+.coverflow-item .glass-card {
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  transform-style: preserve-3d;
+}
+
+.coverflow-item.active .glass-card {
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+.coverflow-item .glass-image-container {
+  position: relative;
+}
+
+.coverflow-item .glass-image-container::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.1));
+  pointer-events: none;
+}
+
+/* Controls */
+.coverflow-controls {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.coverflow-nav {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid var(--border-color);
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 300;
+}
+
+.coverflow-nav:hover:not(:disabled) {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+  transform: scale(1.1);
+}
+
+.coverflow-nav:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.coverflow-indicators {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border-color);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.indicator.active {
+  width: 24px;
+  border-radius: 4px;
+  background: var(--accent);
+}
+
+.indicator:hover:not(.active) {
+  background: var(--accent-light);
+}
+
+/* Reflection effect */
+.coverflow-item .glass-card::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: inherit;
+  transform: scaleY(-1);
+  opacity: 0.1;
+  filter: blur(10px);
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,0.3), transparent 30%);
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.3), transparent 30%);
+  pointer-events: none;
+}
+
+/* Touch and drag feedback */
+.coverflow-container.dragging .coverflow-item {
+  transition: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .glass-coverflow {
+    height: 500px;
+    padding: 1rem 0;
+  }
+  
+  .coverflow-container {
+    height: 400px;
+  }
+  
+  .coverflow-item {
+    width: 280px;
+  }
+  
+  .coverflow-item .glass-card {
+    width: 280px;
+  }
+  
+  .coverflow-item .glass-image-container {
+    width: 280px;
+    height: 280px;
+  }
+}
+
+/* Smooth scrolling for keyboard navigation */
+@media (prefers-reduced-motion: no-preference) {
+  .glass-coverflow:focus-visible .coverflow-item {
+    transition-duration: 0.3s;
+  }
+}

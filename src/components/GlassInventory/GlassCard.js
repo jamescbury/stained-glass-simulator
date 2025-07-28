@@ -38,48 +38,14 @@ const GlassCard = ({ glass, onEdit, onDelete, onSelect, isSelected }) => {
       
       <div className="glass-info">
         <h3 className="glass-name">{glass.name}</h3>
-        
-        {glass.primaryColor && (
-          <div className="color-info">
-            <div 
-              className="color-swatch" 
-              style={{ backgroundColor: glass.primaryColor }}
-              title={getColorName(glass.primaryColor)}
-            />
-            <span className="color-name">
+        <div className="glass-details">
+          <span className="detail-item">{textureDisplay}</span>
+          {glass.primaryColor && (
+            <span className="detail-item">
               {getColorName(glass.primaryColor)}
             </span>
-          </div>
-        )}
-        
-        <div className="texture-info">
-          <span className="texture-label">Texture:</span>
-          <span className="texture-name">{textureDisplay}</span>
-        </div>
-        
-        {glass.secondaryColors && glass.secondaryColors.length > 0 && glass.secondaryColors.some(color => color && color !== '#808080') && (
-          <div className="secondary-colors">
-            {glass.secondaryColors.filter(color => color && color !== '#808080').map((color, index) => (
-              <div
-                key={index}
-                className="secondary-color-swatch"
-                style={{ backgroundColor: color }}
-                title={getColorName(color)}
-              />
-            ))}
-          </div>
-        )}
-        
-        {glass.tags && glass.tags.length > 0 && (
-          <div className="tags-container">
-            {glass.tags.map(tag => (
-              <span key={tag} className="tag-small">{tag}</span>
-            ))}
-          </div>
-        )}
-        
-        <div className="glass-meta">
-          <span className="date-added">Added {formatDate(glass.dateAdded)}</span>
+          )}
+          <span className="detail-item">{formatDate(glass.dateAdded)}</span>
         </div>
       </div>
       
