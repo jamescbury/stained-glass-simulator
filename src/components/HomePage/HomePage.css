@@ -1,9 +1,10 @@
 .homepage {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   background-color: #f5f0e8;
   position: relative;
+  overflow: hidden;
 }
 
 .homepage-container {
@@ -12,6 +13,7 @@
   align-items: center;
   justify-content: center;
   padding: 2rem;
+  overflow: hidden;
 }
 
 /* Logo Side - Left */
@@ -20,7 +22,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  padding: 1rem;
+  max-height: calc(100vh - 100px);
 }
 
 .homepage-logo {
@@ -130,7 +133,7 @@
 /* Footer */
 .homepage-footer {
   position: absolute;
-  bottom: 2rem;
+  bottom: 1rem;
   left: 50%;
   transform: translateX(-50%);
   color: #5a6b5d;
@@ -140,6 +143,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  padding: 0.5rem;
 }
 
 .claude-logo {

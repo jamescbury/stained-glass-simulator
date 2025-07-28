@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import AnimatedLogo from './AnimatedLogo';
 import './HomePage.css';
 
 function HomePage() {
@@ -9,7 +10,7 @@ function HomePage() {
     <div className="homepage">
       <div className="homepage-container">
         <div className="logo-side">
-          <img src={process.env.PUBLIC_URL + '/logo.svg'} alt="Glassias Logo" className="homepage-logo" />
+          <AnimatedLogo />
         </div>
         
         <div className="content-side">

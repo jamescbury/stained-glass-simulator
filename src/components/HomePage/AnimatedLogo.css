@@ -1,0 +1,61 @@
+.animated-logo-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.animated-logo {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.animated-logo svg {
+  width: 100%;
+  height: 100%;
+  max-width: 750px;
+  max-height: 750px;
+}
+
+.animated-logo path {
+  transition: fill 0.5s ease, opacity 0.5s ease;
+  stroke: #000;
+  stroke-width: 0.5;
+  stroke-opacity: 0.3;
+}
+
+.animation-indicator {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 12px;
+  height: 12px;
+}
+
+.pulse {
+  width: 100%;
+  height: 100%;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
