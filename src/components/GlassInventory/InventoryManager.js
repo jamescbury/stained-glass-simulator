@@ -96,8 +96,8 @@ const InventoryManager = () => {
         
         const samples = await Promise.all(
           DEFAULT_SAMPLES.map(async (filename) => {
-            // For local development, we need to include the subdirectory
-            const imageUrl = `/stained-glass-simulator/glass_inventory/${filename}`;
+            // Use PUBLIC_URL to work in both local and GitHub Pages
+            const imageUrl = `${process.env.PUBLIC_URL}/glass_inventory/${filename}`;
             
             // Extract info from filename
             const glassTexture = detectGlassTexture(filename);

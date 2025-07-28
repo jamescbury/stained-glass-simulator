@@ -32,8 +32,15 @@ const WorkspaceManager = () => {
       setTemplates(templatesData);
       setGlassInventory(glassData);
       
-      // Auto-select first template if available
-      if (templatesData.length > 0) {
+      // Auto-select mountain template if available, otherwise first template
+      const mountainTemplate = templatesData.find(t => 
+        t.name === 'Mountain' || 
+        (t.svgContent && t.svgContent.includes('mountain'))
+      );
+      
+      if (mountainTemplate) {
+        setSelectedTemplate(mountainTemplate);
+      } else if (templatesData.length > 0) {
         setSelectedTemplate(templatesData[0]);
       }
       

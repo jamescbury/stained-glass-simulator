@@ -3,11 +3,10 @@
 
 const loadSVGContent = async (fileName) => {
   try {
-    // Try different paths to find the correct one
+    // Use PUBLIC_URL to work in both local and GitHub Pages
     const paths = [
-      `/stained-glass-simulator/template_patterns/${fileName}`,
-      `/template_patterns/${fileName}`,
       `${process.env.PUBLIC_URL}/template_patterns/${fileName}`,
+      `/template_patterns/${fileName}`,
       `./template_patterns/${fileName}`
     ];
     
