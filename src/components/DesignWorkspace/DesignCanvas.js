@@ -266,10 +266,7 @@ const DesignCanvas = ({
         });
       }
       
-      // Check if this shape has no fill (stroke-only)
-      const fillAttr = shapeElement.getAttribute('fill');
-      const styleAttr = shapeElement.getAttribute('style');
-      // Removed unused hasStrokeOnly check
+      // Removed fill checking - not needed for clip path creation
       
       // Create clip path from shape
       const clipPath = document.createElementNS('http://www.w3.org/2000/svg', 'clipPath');
