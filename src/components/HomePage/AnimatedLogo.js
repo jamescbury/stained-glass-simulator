@@ -90,6 +90,9 @@ const AnimatedLogo = () => {
   };
 
   useEffect(() => {
+    // Copy ref at start to avoid stale closure issues
+    const animationRefCurrent = animationRef.current;
+    
     // Load the SVG
     fetch(process.env.PUBLIC_URL + '/logo.svg')
       .then(response => response.text())
@@ -121,9 +124,8 @@ const AnimatedLogo = () => {
 
     // Cleanup
     return () => {
-      const timeoutId = animationRef.current.timeoutId;
-      if (timeoutId) {
-        clearTimeout(timeoutId);
+      if (animationRefCurrent.timeoutId) {
+        clearTimeout(animationRefCurrent.timeoutId);
       }
     };
   }, []);
