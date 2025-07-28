@@ -1,19 +1,24 @@
 /* Inventory Manager Styles */
 .inventory-manager {
   display: flex;
-  height: 100%;
+  height: calc(100vh - 60px);
   background-color: var(--bg);
+  overflow: hidden;
 }
 
 /* Main Content Area */
 .inventory-main {
   flex: 1;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   padding: 2rem;
+  min-width: 0;
 }
 
 .inventory-header {
   margin-bottom: 2rem;
+  flex-shrink: 0;
 }
 
 .inventory-header h2 {
@@ -72,7 +77,15 @@
   border-left: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.sidebar-content {
+  flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .sidebar-section {
@@ -260,10 +273,52 @@
   color: var(--border-color);
 }
 
-.glass-card .glass-actions,
 .glass-card .color-info,
 .glass-card .glass-meta {
   display: none;
+}
+
+.glass-actions {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  display: flex;
+  gap: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.glass-card:hover .glass-actions {
+  opacity: 1;
+}
+
+.glass-actions .action-btn {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.glass-actions .edit {
+  background-color: var(--accent);
+  color: white;
+}
+
+.glass-actions .edit:hover {
+  background-color: var(--button-hover);
+}
+
+.glass-actions .delete {
+  background-color: #f0f0f0;
+  color: var(--text-secondary);
+}
+
+.glass-actions .delete:hover {
+  background-color: #e0e0e0;
+  color: #d32f2f;
 }
 
 .glass-card:hover {

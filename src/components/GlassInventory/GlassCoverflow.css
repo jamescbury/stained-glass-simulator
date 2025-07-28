@@ -1,7 +1,8 @@
 /* Glass Coverflow Styles */
 .glass-coverflow {
   width: 100%;
-  height: 600px;
+  flex: 1;
+  min-height: 0;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -14,7 +15,8 @@
 
 .coverflow-container {
   width: 100%;
-  height: 500px;
+  flex: 1;
+  min-height: 0;
   position: relative;
   perspective: 1200px;
   cursor: grab;
@@ -82,6 +84,7 @@
   align-items: center;
   gap: 2rem;
   margin-top: 2rem;
+  flex-shrink: 0;
 }
 
 .coverflow-nav {
@@ -164,12 +167,12 @@
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .glass-coverflow {
-    height: 500px;
+    min-height: 500px;
     padding: 1rem 0;
   }
   
   .coverflow-container {
-    height: 400px;
+    min-height: 400px;
   }
   
   .coverflow-item {

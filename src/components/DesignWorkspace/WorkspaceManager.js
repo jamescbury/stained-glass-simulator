@@ -45,7 +45,7 @@ const WorkspaceManager = () => {
   };
 
   const handleTemplateChange = (templateId) => {
-    const template = templates.find(t => t.id === parseInt(templateId));
+    const template = templates.find(t => t.id === templateId || t.id === parseInt(templateId));
     setSelectedTemplate(template);
     // Reset all state when changing templates
     setAppliedGlass({});
@@ -181,97 +181,173 @@ const WorkspaceManager = () => {
         <head>
           <title>${projectName} - Stained Glass Project</title>
           <style>
+            @page {
+              size: letter;
+              margin: 0.5in;
+            }
+            
             @media print {
-              body { margin: 0; }
+              body { 
+                margin: 0;
+                font-size: 12px;
+              }
               .no-print { display: none; }
+              .page-1 {
+                page-break-after: always;
+                height: 100vh;
+                display: flex;
+                flex-direction: column;
+                padding: 0;
+                margin: 0;
+              }
+              .page-2 {
+                page-break-before: always;
+                page-break-inside: avoid;
+              }
+              .template-preview svg {
+                max-width: 100% !important;
+                max-height: calc(100vh - 140px) !important;
+                width: auto !important;
+                height: auto !important;
+              }
             }
             
             body {
               font-family: Arial, sans-serif;
-              margin: 20px;
+              margin: 0;
+              padding: 20px;
               color: #333;
+            }
+            
+            .page-1 {
+              height: calc(100vh - 40px);
+              display: flex;
+              flex-direction: column;
+              margin-bottom: 40px;
             }
             
             .header {
               text-align: center;
-              margin-bottom: 30px;
-              padding-bottom: 20px;
+              margin-bottom: 15px;
+              padding-bottom: 10px;
               border-bottom: 2px solid #ddd;
+              flex-shrink: 0;
             }
             
             .header h1 {
-              margin: 0 0 10px 0;
+              margin: 0 0 5px 0;
               color: #2c3e50;
+              font-size: 24px;
             }
             
             .header .date {
               color: #666;
-              font-size: 14px;
+              font-size: 12px;
             }
             
             .template-preview {
-              margin: 30px auto;
+              flex: 1;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
               text-align: center;
-              page-break-inside: avoid;
+              overflow: hidden;
+              padding: 10px;
+            }
+            
+            .template-preview h2 {
+              font-size: 18px;
+              margin: 0 0 15px 0;
+              flex-shrink: 0;
+            }
+            
+            #svg-container {
+              flex: 1;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              width: 100%;
+              overflow: hidden;
             }
             
             .template-preview svg {
               max-width: 100%;
-              max-height: 600px;
+              max-height: 100%;
+              width: auto;
+              height: auto;
               border: 1px solid #ddd;
               box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             }
             
+            .page-2 {
+              padding-top: 30px;
+            }
+            
             .statistics {
-              margin-top: 40px;
+              margin-bottom: 30px;
               page-break-inside: avoid;
             }
             
             .statistics h2 {
               color: #2c3e50;
-              border-bottom: 2px solid #3498db;
-              padding-bottom: 10px;
+              border-bottom: 2px solid #547f68;
+              padding-bottom: 8px;
+              font-size: 22px;
+              margin-bottom: 15px;
             }
             
             .stats-grid {
               display: grid;
-              grid-template-columns: repeat(2, 1fr);
-              gap: 20px;
+              grid-template-columns: repeat(4, 1fr);
+              gap: 15px;
               margin: 20px 0;
             }
             
             .stat-box {
               background: #f8f9fa;
-              padding: 15px;
-              border-radius: 8px;
+              padding: 12px;
+              border-radius: 6px;
               border: 1px solid #dee2e6;
+              text-align: center;
             }
             
             .stat-box h3 {
-              margin: 0 0 10px 0;
+              margin: 0 0 5px 0;
               color: #495057;
-              font-size: 16px;
+              font-size: 12px;
+              font-weight: normal;
             }
             
             .stat-value {
-              font-size: 28px;
+              font-size: 24px;
               font-weight: bold;
-              color: #3498db;
+              color: #547f68;
             }
             
-            .glass-usage {
-              margin-top: 30px;
+            .glass-usage h2 {
+              color: #2c3e50;
+              border-bottom: 2px solid #547f68;
+              padding-bottom: 8px;
+              font-size: 22px;
+              margin-bottom: 15px;
+            }
+            
+            .glass-list {
+              display: grid;
+              grid-template-columns: repeat(2, 1fr);
+              gap: 12px;
             }
             
             .glass-item {
               background: #fff;
               border: 1px solid #dee2e6;
-              border-radius: 8px;
-              padding: 15px;
-              margin-bottom: 15px;
+              border-radius: 6px;
+              padding: 10px;
               display: flex;
               justify-content: space-between;
               align-items: center;
+              font-size: 12px;
             }
             
             .glass-info {
@@ -281,102 +357,112 @@ const WorkspaceManager = () => {
             .glass-name {
               font-weight: bold;
               color: #2c3e50;
-              margin-bottom: 5px;
+              margin-bottom: 3px;
+              font-size: 13px;
             }
             
             .glass-details {
-              font-size: 14px;
+              font-size: 11px;
               color: #666;
             }
             
             .glass-shapes {
-              font-size: 12px;
+              font-size: 10px;
               color: #888;
-              margin-top: 5px;
+              margin-top: 3px;
             }
             
-            .glass-preview {
-              width: 60px;
-              height: 60px;
-              border-radius: 4px;
-              border: 1px solid #ddd;
-              margin-left: 20px;
+            .glass-quantity {
+              font-size: 20px;
+              font-weight: bold;
+              color: #547f68;
+              margin-left: 15px;
             }
             
             .footer {
-              margin-top: 50px;
+              position: fixed;
+              bottom: 20px;
+              left: 0;
+              right: 0;
               text-align: center;
               color: #666;
-              font-size: 12px;
-              border-top: 1px solid #ddd;
-              padding-top: 20px;
+              font-size: 11px;
+              font-style: italic;
+            }
+            
+            @media print {
+              .footer {
+                position: absolute;
+                bottom: 10px;
+              }
             }
           </style>
         </head>
         <body>
-          <div class="header">
-            <h1>${projectName || 'Untitled Project'}</h1>
-            <div class="date">Generated on ${new Date().toLocaleDateString('en-US', { 
-              weekday: 'long', 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
-            })}</div>
-          </div>
-          
-          <div class="template-preview">
-            <h2>Template: ${selectedTemplate?.name || 'Unknown'}</h2>
-            <div id="svg-container"></div>
-          </div>
-          
-          <div class="statistics">
-            <h2>Project Statistics</h2>
-            <div class="stats-grid">
-              <div class="stat-box">
-                <h3>Total Shapes</h3>
-                <div class="stat-value">${stats.totalShapes}</div>
-              </div>
-              <div class="stat-box">
-                <h3>Shapes with Glass</h3>
-                <div class="stat-value">${stats.shapesWithGlass}</div>
-              </div>
-              <div class="stat-box">
-                <h3>Completion</h3>
-                <div class="stat-value">${stats.totalShapes > 0 ? Math.round((stats.shapesWithGlass / stats.totalShapes) * 100) : 0}%</div>
-              </div>
-              <div class="stat-box">
-                <h3>Glass Types Used</h3>
-                <div class="stat-value">${stats.glassUsage.length}</div>
-              </div>
+          <div class="page-1">
+            <div class="header">
+              <h1>${projectName || 'Untitled Project'}</h1>
+              <div class="date">Generated on ${new Date().toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+              })}</div>
+            </div>
+            
+            <div class="template-preview">
+              <h2>Template: ${selectedTemplate?.name || 'Unknown'}</h2>
+              <div id="svg-container"></div>
             </div>
           </div>
           
-          <div class="glass-usage">
-            <h2>Glass Usage Details</h2>
-            ${stats.glassUsage.map(usage => `
-              <div class="glass-item">
-                <div class="glass-info">
-                  <div class="glass-name">${usage.glass.name}</div>
-                  <div class="glass-details">
-                    ${usage.glass.code ? `Code: ${usage.glass.code} | ` : ''}
-                    ${usage.glass.manufacturer || 'Unknown Manufacturer'}
-                  </div>
-                  <div class="glass-shapes">
-                    Used in ${usage.count} shape${usage.count !== 1 ? 's' : ''}: 
-                    #${usage.shapes.join(', #')}
-                  </div>
+          <div class="page-2">
+            <div class="statistics">
+              <h2>Project Statistics</h2>
+              <div class="stats-grid">
+                <div class="stat-box">
+                  <h3>Total Shapes</h3>
+                  <div class="stat-value">${stats.totalShapes}</div>
                 </div>
-                ${usage.glass.imageUrl || usage.glass.imageData ? `
-                  <div class="glass-preview" style="background-image: url(${usage.glass.imageData || usage.glass.imageUrl}); background-size: cover; background-position: center;"></div>
-                ` : usage.glass.primaryColor ? `
-                  <div class="glass-preview" style="background-color: ${usage.glass.primaryColor}"></div>
-                ` : ''}
+                <div class="stat-box">
+                  <h3>With Glass</h3>
+                  <div class="stat-value">${stats.shapesWithGlass}</div>
+                </div>
+                <div class="stat-box">
+                  <h3>Complete</h3>
+                  <div class="stat-value">${stats.totalShapes > 0 ? Math.round((stats.shapesWithGlass / stats.totalShapes) * 100) : 0}%</div>
+                </div>
+                <div class="stat-box">
+                  <h3>Glass Types</h3>
+                  <div class="stat-value">${stats.glassUsage.length}</div>
+                </div>
               </div>
-            `).join('')}
-          </div>
-          
-          <div class="footer">
-            <p>Generated by Stained Glass Simulator</p>
+            </div>
+            
+            <div class="glass-usage">
+              <h2>Glass Usage Details</h2>
+              <div class="glass-list">
+                ${stats.glassUsage.map(usage => `
+                  <div class="glass-item">
+                    <div class="glass-info">
+                      <div class="glass-name">${usage.glass.name}</div>
+                      <div class="glass-details">
+                        ${usage.glass.texture ? `${usage.glass.texture} texture` : ''}
+                        ${usage.glass.primaryColor ? ` • ${usage.glass.primaryColor}` : ''}
+                      </div>
+                      <div class="glass-shapes">
+                        Shapes: #${usage.shapes.join(', #')}
+                      </div>
+                    </div>
+                    <div class="glass-quantity">${usage.count}</div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+            
+            <div class="footer">
+              Generated by Glassias
+            </div>
           </div>
           
           <script>
@@ -415,6 +501,14 @@ const WorkspaceManager = () => {
           el.style.fill = '';
           el.style.fillOpacity = '';
         });
+        
+        // Remove any width/height restrictions for print
+        svgClone.removeAttribute('width');
+        svgClone.removeAttribute('height');
+        svgClone.style.width = '';
+        svgClone.style.height = '';
+        svgClone.style.maxWidth = '100%';
+        svgClone.style.maxHeight = '100%';
         
         const svgContainer = printWindow.document.getElementById('svg-container');
         if (svgContainer) {
@@ -474,18 +568,18 @@ const WorkspaceManager = () => {
             Export CSV
           </button>
           <button 
-            className="controls-button"
-            onClick={() => setShowSidePanel(!showSidePanel)}
-            title="Toggle controls"
+            className="print-button"
+            onClick={handlePrint}
+            title="Print project"
           >
-            Controls
+            Print
           </button>
         </div>
         
       </div>
 
       <div className="workspace-content">
-        {selectedTemplate && (
+        {selectedTemplate ? (
           <DesignCanvas
             key={selectedTemplate.id} // Force remount when template changes
             template={selectedTemplate}
@@ -498,6 +592,11 @@ const WorkspaceManager = () => {
             onPiecesLoaded={setPieces}
             glassRotation={glassRotation}
           />
+        ) : (
+          <div className="empty-workspace">
+            <h2>No Template Selected</h2>
+            <p>Please select a template from the dropdown above.</p>
+          </div>
         )}
         
         <SidePanel

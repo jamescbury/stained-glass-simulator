@@ -14,13 +14,25 @@ const DEFAULT_SAMPLES = [
   'black_opal_irridecent.jpg',
   'blue_mottled.webp',
   'brown_transparent.webp',
+  'copper_blue_streaky.jpg',
+  'cranberry_pink_white_soft_streaky.jpg',
   'dark_amber_transparent.jpg',
   'green_mottled.webp',
+  'iradized_accordian_rainbow.jpg',
   'lime_blue_mottle.webp',
   'olive_brown_streaky.webp',
   'orange_opal_streaky.webp',
+  'pink_opal_streaky.jpg',
   'purple_streaky.webp',
-  'vanilla_turqoise_infusion.webp'
+  'spring_green_yellow_martigras.jpg',
+  'true_blue_streaky.jpg',
+  'turquoise_blue_white_streaky.jpg',
+  'van_gogh_copper_gold.jpg',
+  'van_gogh_spring_green.jpg',
+  'vanilla_turqoise_infusion.webp',
+  'white_streaky.jpg',
+  'youghiogheny_emerald.jpg',
+  'youghiogheny_lime.jpg'
 ];
 
 const InventoryManager = () => {
@@ -314,8 +326,9 @@ const InventoryManager = () => {
       </div>
 
       <div className="inventory-sidebar">
-        <div className="sidebar-section">
-          <h3>Add Inventory</h3>
+        <div className="sidebar-content">
+          <div className="sidebar-section">
+            <h3>Add Inventory</h3>
           <GlassUploader onUpload={handleUpload} customTextures={customTextures} />
           <div style={{ marginTop: '1rem' }}>
             <label className="import-json-button" style={{ cursor: 'pointer', display: 'block' }}>
@@ -406,7 +419,56 @@ const InventoryManager = () => {
             >
               Import
             </button>
+            <button 
+              onClick={async () => {
+                const confirmLoad = window.confirm('This will add all default glass samples to your inventory. Continue?');
+                if (confirmLoad) {
+                  try {
+                    const samples = await Promise.all(
+                      DEFAULT_SAMPLES.map(async (filename) => {
+                        const imageUrl = `${process.env.PUBLIC_URL || ''}/glass_inventory/${filename}`;
+                        
+                        const glassTexture = detectGlassTexture(filename);
+                        const color = extractColorFromFilename(filename);
+                        const name = filename
+                          .replace(/\.(jpg|webp|png)$/, '')
+                          .replace(/_/g, ' ')
+                          .replace(/\b\w/g, l => l.toUpperCase());
+                        
+                        return {
+                          name,
+                          texture: glassTexture.key,
+                          primaryColor: color,
+                          notes: glassTexture.description,
+                          tags: [glassTexture.name, ...filename.split(/[_.]/).filter(tag => tag.length > 2)],
+                          imageUrl: imageUrl,
+                          dateAdded: new Date().toISOString()
+                        };
+                      })
+                    );
+                    
+                    for (const glass of samples) {
+                      const exists = glassItems.some(g => g.name === glass.name);
+                      if (!exists) {
+                        await glassStorage.addGlass(glass);
+                      }
+                    }
+                    
+                    await loadGlassItems();
+                    alert('Default glass samples loaded successfully!');
+                  } catch (error) {
+                    console.error('Error loading default samples:', error);
+                    alert('Failed to load default samples. Please check the console for details.');
+                  }
+                }
+              }}
+              className="import-button"
+              style={{ backgroundColor: 'transparent', color: 'var(--accent)', border: '1px solid var(--accent)' }}
+            >
+              Load Default Samples
+            </button>
           </div>
+        </div>
         </div>
       </div>
 

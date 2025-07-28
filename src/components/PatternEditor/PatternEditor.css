@@ -1,19 +1,23 @@
 /* Pattern Manager Styles */
 .pattern-manager {
   display: flex;
-  height: calc(100vh - 80px);
+  height: calc(100vh - 60px);
   background-color: var(--bg);
+  overflow: hidden;
 }
 
 /* Main Content Area */
 .pattern-main {
   flex: 1;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   padding: 2rem;
 }
 
 .pattern-header {
   margin-bottom: 2rem;
+  flex-shrink: 0;
 }
 
 .pattern-header h2 {
@@ -35,7 +39,15 @@
   border-left: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.sidebar-content {
+  flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .sidebar-section {
@@ -79,7 +91,8 @@
   font-size: 0.9rem;
 }
 
-.filter-select {
+.filter-select,
+.filter-input {
   width: 100%;
   padding: 0.5rem;
   font-size: 1rem;
@@ -87,6 +100,16 @@
   border-radius: 6px;
   background-color: var(--input-bg);
   font-family: var(--font-body);
+}
+
+input[type="number"].filter-input {
+  -moz-appearance: textfield;
+}
+
+input[type="number"].filter-input::-webkit-outer-spin-button,
+input[type="number"].filter-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 /* Action Buttons */
@@ -113,6 +136,30 @@
 .export-button:hover,
 .import-button:hover {
   background-color: var(--button-hover);
+}
+
+.reset-button {
+  padding: 0.6rem 1.2rem;
+  background-color: transparent;
+  color: #dc3545;
+  border: 1px solid #dc3545;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  font-family: var(--font-body);
+}
+
+.reset-button:hover {
+  background-color: #dc3545;
+  color: white;
+}
+
+.reset-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* Pattern Gallery */
@@ -229,6 +276,24 @@
   background-color: #f9f9f9;
 }
 
+/* Pattern Uploader in Sidebar */
+.sidebar-section .pattern-uploader {
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 1.5rem 1rem;
+}
+
+.sidebar-section .pattern-uploader:hover {
+  background-color: white;
+}
+
+.sidebar-section .upload-text {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin: 0;
+  line-height: 1.4;
+}
+
 .upload-icon {
   font-size: 2.5rem;
   margin-bottom: 1rem;
@@ -276,12 +341,8 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: transparent;
   z-index: 1000;
-  padding: 2rem;
 }
 
 .pattern-editor {

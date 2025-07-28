@@ -58,7 +58,7 @@ const GlassCard = ({ glass, onEdit, onDelete, onSelect, isSelected }) => {
           }}
           title="Edit glass"
         >
-          ✏️
+          Edit
         </button>
         <button
           className="action-btn delete"
@@ -68,7 +68,7 @@ const GlassCard = ({ glass, onEdit, onDelete, onSelect, isSelected }) => {
           }}
           title="Delete glass"
         >
-          🗑️
+          Delete
         </button>
       </div>
     </div>

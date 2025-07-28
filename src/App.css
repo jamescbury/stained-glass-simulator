@@ -31,6 +31,10 @@ body {
     line-height: 1.5;
 }
 
+#root {
+    min-height: 100vh;
+}
+
 .App {
   min-height: 100vh;
   background-color: var(--bg);

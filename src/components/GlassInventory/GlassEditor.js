@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { GLASS_TEXTURES } from '../../constants/glassTextures';
+import './GlassEditor.css';
 
 const GlassEditor = ({ glass, customTextures = [], onSave, onCancel }) => {
   const [editedGlass, setEditedGlass] = useState({ ...glass });

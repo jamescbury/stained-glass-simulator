@@ -69,9 +69,15 @@ const SidePanel = ({
     // Sort groups by luminance (light to dark)
     return Object.values(grouped).sort((a, b) => {
       const getLuminance = (hex) => {
-        const r = parseInt(hex.substr(1,2), 16);
-        const g = parseInt(hex.substr(3,2), 16);
-        const b = parseInt(hex.substr(5,2), 16);
+        // Handle cases where hex might not be a string or might be invalid
+        if (!hex || typeof hex !== 'string') return 0;
+        // Ensure hex starts with # and is valid length
+        const cleanHex = hex.startsWith('#') ? hex : '#' + hex;
+        if (cleanHex.length < 7) return 0;
+        
+        const r = parseInt(cleanHex.substring(1,3), 16);
+        const g = parseInt(cleanHex.substring(3,5), 16);
+        const b = parseInt(cleanHex.substring(5,7), 16);
         return (0.299 * r + 0.587 * g + 0.114 * b);
       };
       return getLuminance(b.color) - getLuminance(a.color);

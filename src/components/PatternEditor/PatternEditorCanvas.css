@@ -3,7 +3,7 @@
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #f5f5f5;
+  background-color: var(--bg);
 }
 
 /* Editor Header */
@@ -11,54 +11,74 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 15px 20px;
+  padding: 1.5rem 2rem;
   background-color: white;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--border-color);
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .back-btn {
-  padding: 8px 16px;
-  background: #f5f5f5;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  padding: 0.6rem 1.2rem;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 1rem;
+  font-family: var(--font-body);
+  font-weight: 500;
+  color: var(--text-primary);
   transition: all 0.2s;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 0.5rem;
 }
 
 .back-btn:hover {
-  background: #e0e0e0;
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
   transform: translateX(-2px);
 }
 
 .editor-header h2 {
-  font-size: 20px;
-  color: #333;
+  font-size: 1.5rem;
+  font-family: var(--font-heading);
+  color: var(--text-primary);
   margin: 0;
+  font-weight: 600;
 }
 
 .editor-actions {
   display: flex;
   gap: 10px;
+  align-items: center;
+}
+
+.piece-count {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  background: var(--bg);
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
 }
 
 .delete-btn {
-  padding: 8px 16px;
-  background-color: #e74c3c;
+  padding: 0.6rem 1.2rem;
+  background-color: #dc3545;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 1rem;
+  font-family: var(--font-body);
+  font-weight: 500;
   transition: all 0.2s;
 }
 
 .delete-btn:hover {
-  background-color: #c0392b;
+  background-color: #c82333;
+  transform: translateY(-1px);
 }
 
 /* Editor Layout */
@@ -77,20 +97,21 @@
 .shapes-panel {
   width: 320px;
   background: white;
-  box-shadow: -2px 0 8px rgba(0,0,0,0.1);
+  box-shadow: -2px 0 8px rgba(0,0,0,0.05);
   display: flex;
   flex-direction: column;
-  border-left: 1px solid #ddd;
+  border-left: 1px solid var(--border-color);
 }
 
 .shapes-panel h3 {
   margin: 0;
-  padding: 15px 20px;
-  color: #333;
-  font-size: 16px;
-  font-weight: 500;
-  background-color: #f8f8f8;
-  border-bottom: 1px solid #ddd;
+  padding: 1rem 1.5rem;
+  color: var(--text-primary);
+  font-size: 1.1rem;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  background-color: var(--bg);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .shapes-list {
@@ -102,37 +123,39 @@
 .shape-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px;
-  background-color: #f8f8f8;
-  border-radius: 6px;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: var(--bg);
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
-  margin-bottom: 8px;
+  margin-bottom: 0.5rem;
   border: 2px solid transparent;
   position: relative;
 }
 
 .shape-item:hover {
-  background-color: #f0f0f0;
+  background-color: white;
+  border-color: var(--border-color);
 }
 
 .shape-item.selected {
-  background-color: #e3f2ff;
-  border-color: #4da6ff;
+  background-color: rgba(84, 127, 104, 0.1);
+  border-color: var(--accent);
 }
 
 .shape-number {
   width: 40px;
   height: 40px;
-  background-color: white;
+  background-color: var(--accent);
+  color: white;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 600;
-  color: #333;
-  font-size: 14px;
+  font-size: 0.9rem;
+  font-family: var(--font-body);
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
@@ -144,15 +167,16 @@
 }
 
 .shape-type {
-  font-size: 14px;
-  color: #666;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
 }
 
 .shape-color {
   width: 20px;
   height: 20px;
   border-radius: 4px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-color);
 }
 
 .delete-shape-btn {
@@ -181,31 +205,34 @@
 
 .delete-shape-btn:hover {
   opacity: 1 !important;
-  background-color: #ffebee;
-  color: #c62828;
+  background-color: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
 }
 
 /* Deleted Info */
 .deleted-info {
-  padding: 20px;
-  background-color: #fff3cd;
-  border-top: 1px solid #ddd;
+  padding: 1.5rem;
+  background-color: rgba(255, 193, 7, 0.1);
+  border-top: 1px solid var(--border-color);
 }
 
 .deleted-info p {
-  margin: 0 0 10px 0;
-  color: #856404;
-  font-size: 14px;
+  margin: 0 0 0.75rem 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-family: var(--font-body);
 }
 
 .undo-all-btn {
-  padding: 6px 12px;
+  padding: 0.5rem 1rem;
   background-color: #ffc107;
-  color: #333;
+  color: var(--text-primary);
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 0.85rem;
+  font-family: var(--font-body);
+  font-weight: 500;
   transition: all 0.2s;
 }
 
@@ -229,55 +256,61 @@
 
 .delete-confirm-dialog {
   background-color: white;
-  border-radius: 8px;
-  padding: 24px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+  padding: 2rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
   max-width: 400px;
   width: 90%;
 }
 
 .delete-confirm-dialog h3 {
-  margin: 0 0 12px 0;
-  color: #333;
-  font-size: 18px;
+  margin: 0 0 1rem 0;
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-family: var(--font-heading);
+  font-weight: 600;
 }
 
 .delete-confirm-dialog p {
-  margin: 0 0 20px 0;
-  color: #666;
-  font-size: 14px;
+  margin: 0 0 1.5rem 0;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  font-family: var(--font-body);
 }
 
 .confirm-actions {
   display: flex;
-  gap: 10px;
+  gap: 0.75rem;
   justify-content: flex-end;
 }
 
 .confirm-yes,
 .confirm-no {
-  padding: 8px 16px;
+  padding: 0.6rem 1.2rem;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 1rem;
+  font-family: var(--font-body);
+  font-weight: 500;
   transition: all 0.2s;
 }
 
 .confirm-yes {
-  background-color: #e74c3c;
+  background-color: #dc3545;
   color: white;
 }
 
 .confirm-yes:hover {
-  background-color: #c0392b;
+  background-color: #c82333;
+  transform: translateY(-1px);
 }
 
 .confirm-no {
-  background-color: #e0e0e0;
-  color: #333;
+  background-color: #f0f0f0;
+  color: var(--text-primary);
 }
 
 .confirm-no:hover {
-  background-color: #d0d0d0;
+  background-color: #e0e0e0;
 }

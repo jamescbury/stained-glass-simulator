@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PatternUploader from './PatternUploader';
-import PatternGallery from './PatternGallery';
+import TemplateCoverflow from './TemplateCoverflow';
 import PatternEditorCanvas from './PatternEditorCanvas';
 import { patternStorage } from '../../services/patternStorage';
 import { getProcessedTemplates } from '../../data/templateSVGs';
@@ -14,9 +14,9 @@ const PatternManager = () => {
   const [loadingMessage, setLoadingMessage] = useState('Loading patterns...');
   const [isResetting, setIsResetting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterTexture, setFilterTexture] = useState('all');
-  const [filterColor, setFilterColor] = useState('all');
-  const [maxPieces, setMaxPieces] = useState('all');
+  const [maxPieces, setMaxPieces] = useState('');
+  const [filterTag, setFilterTag] = useState('all');
+  const [allTags, setAllTags] = useState([]);
 
   useEffect(() => {
     loadPatterns();
@@ -163,6 +163,17 @@ const PatternManager = () => {
     }
   };
 
+  // Extract all unique tags
+  useEffect(() => {
+    const tags = new Set();
+    patterns.forEach(pattern => {
+      if (pattern.tags && Array.isArray(pattern.tags)) {
+        pattern.tags.forEach(tag => tags.add(tag));
+      }
+    });
+    setAllTags(Array.from(tags).sort());
+  }, [patterns]);
+
   // Filter patterns based on search and filters
   const filteredPatterns = patterns.filter(pattern => {
     // Search filter
@@ -171,10 +182,17 @@ const PatternManager = () => {
     }
     
     // Max pieces filter
-    if (maxPieces !== 'all') {
+    if (maxPieces && maxPieces !== '') {
       const pieces = pattern.pieceCount || 0;
-      if (maxPieces === '<50' && pieces >= 50) return false;
-      // Add more filters as needed
+      const maxPiecesNum = parseInt(maxPieces);
+      if (!isNaN(maxPiecesNum) && pieces > maxPiecesNum) return false;
+    }
+    
+    // Tag filter
+    if (filterTag !== 'all') {
+      if (!pattern.tags || !pattern.tags.includes(filterTag)) {
+        return false;
+      }
     }
     
     return true;
@@ -191,8 +209,6 @@ const PatternManager = () => {
                 {patterns.length} templates in your collection
               </div>
             </div>
-
-            <PatternUploader onUpload={handleUpload} />
             
             {isLoading ? (
               <div className="loading">{loadingMessage}</div>
@@ -202,20 +218,31 @@ const PatternManager = () => {
                 <p>Try adjusting your search or filters</p>
               </div>
             ) : (
-              <PatternGallery
-                patterns={filteredPatterns}
-                onSelectPattern={handleSelectPattern}
-                onDeletePattern={handleDeletePattern}
+              <TemplateCoverflow
+                templates={filteredPatterns}
+                onTemplateSelect={handleSelectPattern}
+                selectedTemplate={selectedPattern}
+                onEdit={(pattern) => {
+                  setSelectedPattern(pattern);
+                  setViewMode('viewer');
+                }}
+                onDelete={handleDeletePattern}
               />
             )}
           </div>
 
           <div className="pattern-sidebar">
+            <div className="sidebar-content">
+              <div className="sidebar-section">
+                <h3>Add Templates</h3>
+              <PatternUploader onUpload={handleUpload} />
+            </div>
+            
             <div className="sidebar-section">
               <h3>Search</h3>
               <input
                 type="text"
-                placeholder="Search Glass"
+                placeholder="Search Templates"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="search-input"
@@ -223,36 +250,28 @@ const PatternManager = () => {
               
               <div style={{ marginTop: '1rem' }}>
                 <div className="filter-group">
-                  <label className="filter-label">All Textures</label>
-                  <select 
-                    value={filterTexture} 
-                    onChange={(e) => setFilterTexture(e.target.value)}
-                    className="filter-select"
-                  >
-                    <option value="all">All Textures</option>
-                  </select>
-                </div>
-
-                <div className="filter-group">
-                  <label className="filter-label">All Colors</label>
-                  <select 
-                    value={filterColor} 
-                    onChange={(e) => setFilterColor(e.target.value)}
-                    className="filter-select"
-                  >
-                    <option value="all">All Colors</option>
-                  </select>
-                </div>
-
-                <div className="filter-group">
                   <label className="filter-label">Max Pieces</label>
-                  <select 
+                  <input 
+                    type="number"
+                    placeholder="Any"
                     value={maxPieces} 
                     onChange={(e) => setMaxPieces(e.target.value)}
+                    className="filter-input"
+                    min="1"
+                  />
+                </div>
+
+                <div className="filter-group">
+                  <label className="filter-label">Tags</label>
+                  <select 
+                    value={filterTag} 
+                    onChange={(e) => setFilterTag(e.target.value)}
                     className="filter-select"
                   >
-                    <option value="all">Any</option>
-                    <option value="<50">&lt; 50 pieces</option>
+                    <option value="all">All Tags</option>
+                    {allTags.map(tag => (
+                      <option key={tag} value={tag}>{tag}</option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -289,7 +308,15 @@ const PatternManager = () => {
                 >
                   Import
                 </button>
+                <button 
+                  onClick={handleResetAllPatterns}
+                  className="reset-button"
+                  disabled={isResetting}
+                >
+                  {isResetting ? 'Resetting...' : 'Reset All Templates'}
+                </button>
               </div>
+            </div>
             </div>
           </div>
         </>

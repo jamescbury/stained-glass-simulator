@@ -25,21 +25,13 @@ const PatternUploader = ({ onUpload }) => {
   });
 
   return (
-    <div className="pattern-uploader">
-      <h3>Upload Custom Template</h3>
-      <div className="upload-area">
-        <div
-          {...getRootProps()}
-          className={`dropzone ${isDragActive ? 'active' : ''}`}
-        >
-          <input {...getInputProps()} />
-          <div className="dropzone-content">
-            <div className="upload-icon">📐</div>
-            <p>Drag & drop SVG pattern here</p>
-            <p className="small">or click to select file</p>
-            <p className="formats">SVG files only</p>
-          </div>
-        </div>
+    <div
+      {...getRootProps()}
+      className={`pattern-uploader dropzone ${isDragActive ? 'active' : ''}`}
+    >
+      <input {...getInputProps()} />
+      <div className="dropzone-content">
+        <p className="upload-text">Drop SVG here or click to upload</p>
       </div>
     </div>
   );
