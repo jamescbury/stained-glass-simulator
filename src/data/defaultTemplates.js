@@ -88,6 +88,13 @@ export const loadDefaultTemplatesData = async () => {
       category: 'Landscape',
       difficulty: 'intermediate',
       description: 'Sunrise scene with radiating light patterns'
+    },
+    {
+      fileName: 'tulip_festival.svg',
+      name: 'Tulip Festival',
+      category: 'Floral',
+      difficulty: 'advanced',
+      description: 'A detailed tulip festival floral pattern'
     }
   ];
 

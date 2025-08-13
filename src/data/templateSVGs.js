@@ -65,6 +65,14 @@ export const DEFAULT_TEMPLATE_DATA = [
     difficulty: 'intermediate',
     description: 'Sunrise scene with radiating light patterns',
     svgContent: placeholderSVG('Sunrise')
+  },
+  {
+    fileName: 'tulip_festival.svg',
+    name: 'Tulip Festival',
+    category: 'Floral',
+    difficulty: 'advanced',
+    description: 'A detailed tulip festival floral pattern',
+    svgContent: placeholderSVG('Tulip Festival')
   }
 ];
 
